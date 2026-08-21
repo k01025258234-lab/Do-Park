@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DoPark-u8 수다방</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Fonts: Gaegu (Crayon/Handwritten style) & Jua -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Jua&family=Nanum+Gothic:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Gaegu', cursive, sans-serif;
+            font-size: 1.25rem;
+            background-color: #f7f4ea;
+            background-image: 
+                radial-gradient(#e0dcd0 1px, transparent 1px),
+                radial-gradient(#e0dcd0 1px, #f7f4ea 1px);
+            background-size: 40px 40px;
+            background-position: 0 0, 20px 20px;
+            color: #2c3e50;
+        }
+
+        .title-font {
+            font-family: 'Jua', sans-serif;
+        }
+
+        /* Hand-drawn organic rough borders */
+        .crayon-border-1 {
+            border: 3px solid #3b82f6;
+            border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+        }
+        .crayon-border-green {
+            border: 3.5px solid #22c55e;
+            border-radius: 15px 225px 15px 255px/255px 15px 225px 15px;
+        }
+        .crayon-border-yellow {
+            border: 3.5px solid #eab308;
+            border-radius: 225px 15px 255px 15px/15px 255px 15px 225px;
+        }
+        .crayon-border-red {
+            border: 3.5px solid #ef4444;
+            border-radius: 20px 240px 20px 240px/240px 20px 240px 20px;
+        }
+
+        /* Crayon shadow effect */
+        .crayon-shadow {
+            box-shadow: 4px 5px 0px 0px rgba(0, 0, 0, 0.15);
+        }
+        .crayon-shadow-lg {
+            box-shadow: 6px 8px 0px 0px rgba(0, 0, 0, 0.2);
+        }
+        .crayon-shadow-red {
+            box-shadow: 4px 5px 0px 0px #fca5a5;
+        }
+
+        /* Paper card style */
+        .paper-card {
+            background: #ffffff;
+            background-image: linear-gradient(#f8fafc 1px, transparent 1px);
+            background-size: 100% 1.8rem;
+        }
+
+        /* Polaroid effect for photo gallery */
+        .polaroid {
+            background: white;
+            padding: 12px 12px 24px 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.12), 0 0 2px rgba(0,0,0,0.1);
+            transform: rotate(-1deg);
+            transition: all 0.2s ease-in-out;
+        }
+        .polaroid:nth-child(even) {
+            transform: rotate(1.5deg);
+        }
+        .polaroid:hover {
+            transform: scale(1.03) rotate(0deg);
+            z-index: 10;
+        }
+
+        /* Crayon taped effect */
+        .washi-tape {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%) rotate(-2deg);
+            width: 90px;
+            height: 22px;
+            background-color: rgba(254, 240, 138, 0.7);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            z-index: 5;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #88c0d0;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #5e81ac;
+        }
+
+        @keyframes floatSlow {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-6px) rotate(1deg); }
+        }
+        .floating-art {
+            animation: floatSlow 4s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col pb-12">
+
+    <!-- Lock Screen Modal (Passcode Protection) -->
+    <div id="lockScreen" class="fixed inset-0 bg-emerald-900/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="bg-[#fefce8] crayon-border-green crayon-shadow-lg p-6 sm:p-8 rounded-3xl max-w-md w-full text-center relative overflow-hidden">
+            <div class="absolute -top-4 -left-4 text-4xl floating-art">⚽</div>
+            <div class="absolute -bottom-4 -right-4 text-4xl floating-art" style="animation-delay: 1.5s;">🌳</div>
+            <div class="absolute top-2 right-4 text-3xl">🎨</div>
+
+            <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 border-2 border-green-500">
+                <i data-lucide="lock" class="w-10 h-10 text-green-600"></i>
+            </div>
+
+            <h2 class="title-font text-3xl text-emerald-800 mb-2">DoPark-u8 수다방</h2>
+            <p class="text-gray-600 text-lg mb-6">지정된 축구 친구들만 들어올 수 있어요! 비밀번호 4자리를 입력해주세요 ⚽</p>
+
+            <form id="passcodeForm" onsubmit="unlockApp(event)" class="space-y-4">
+                <div class="flex justify-center gap-3 mb-2">
+                    <input type="password" maxlength="4" id="passcodeInput" pattern="[0-9]*" inputmode="numeric" placeholder="****"
+                           class="w-48 text-center text-3xl tracking-widest py-2 px-4 rounded-2xl border-4 border-emerald-400 focus:outline-none focus:border-emerald-600 bg-white font-bold text-emerald-800 crayon-shadow">
+                </div>
+                <div id="lockErrorMsg" class="text-red-500 font-bold text-base min-h-[24px]"></div>
+
+                <button type="submit" 
+                        class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-2xl rounded-2xl crayon-border-1 crayon-shadow active:translate-y-1 transition-all">
+                    입장하기 🚀
+                </button>
+            </form>
+
+            <div class="mt-6 text-sm text-emerald-700 bg-emerald-50/80 py-2 px-3 rounded-xl border border-emerald-200">
+                💡 힌트: 팀 비밀번호 (4자리)
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN CONTAINER (hidden until unlocked) -->
+    <div id="appContainer" class="hidden max-w-5xl w-full mx-auto px-3 sm:px-6 pt-4 flex-1 flex flex-col">
+
+        <!-- Header Banner with Park & Soccer Pitch theme -->
+        <header class="relative bg-gradient-to-r from-emerald-400 via-green-300 to-sky-300 rounded-3xl p-6 mb-6 crayon-border-green crayon-shadow overflow-hidden">
+            <div class="absolute inset-0 opacity-15 pointer-events-none">
+                <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                    <line x1="50%" y1="0" x2="50%" y2="100%" stroke="white" stroke-width="4" stroke-dasharray="8 8" />
+                    <circle cx="50%" cy="50%" r="60" fill="none" stroke="white" stroke-width="4" />
+                </svg>
+            </div>
+
+            <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-4">
+                <div class="flex items-center gap-4 text-center md:text-left">
+                    <div class="relative bg-white p-3 rounded-full crayon-border-yellow shadow-inner floating-art">
+                        <span class="text-5xl">⚽</span>
+                        <span class="absolute -bottom-1 -right-1 text-2xl">🖍️</span>
+                    </div>
+                    <div>
+                        <div class="flex items-center justify-center md:justify-start gap-2">
+                            <span class="bg-yellow-300 text-yellow-900 text-xs px-2.5 py-0.5 rounded-full font-bold border border-yellow-500">Do-Park</span>
+                            <span class="bg-sky-200 text-sky-800 text-xs px-2.5 py-0.5 rounded-full font-bold border border-sky-400">두팍친구들</span>
+                        </div>
+                        <h1 class="title-font text-4xl sm:text-5xl text-emerald-900 mt-1 tracking-wide drop-shadow-sm">DoPark-u8 수다방</h1>
+                        <p class="text-emerald-800 text-lg font-bold">뛰어놀고 슛 골인! 우리들의 축구 이야기 ⚽🌳</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2 bg-white/80 backdrop-blur px-4 py-2 rounded-2xl crayon-border-1 border-sky-400">
+                    <div class="text-right">
+                        <div class="text-sm font-bold text-sky-900 flex items-center gap-1">
+                            <i data-lucide="shield-check" class="w-4 h-4 text-green-600"></i> 인증 완료
+                        </div>
+                        <span class="text-xs text-gray-500">암호: 2018</span>
+                    </div>
+                    <button onclick="lockApp()" class="ml-2 p-2 bg-red-100 hover:bg-red-200 text-red-600 rounded-xl transition-colors" title="잠그기">
+                        <i data-lucide="log-out" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Team Roster -->
+            <div class="mt-4 pt-3 border-t border-emerald-500/20 flex flex-wrap justify-around gap-2 text-sm font-bold text-emerald-900">
+                <span class="flex items-center gap-1">🥷 노은준(닌자)</span>
+                <span class="flex items-center gap-1">🦍 이서하(킹콩)</span>
+                <span class="flex items-center gap-1">⚡ 김찬유(짠유)</span>
+                <span class="flex items-center gap-1">🦧 전성균(고릴라)</span>
+                <span class="flex items-center gap-1">🥔 김하담(포테토)</span>
+                <span class="flex items-center gap-1">👑 최현우(윌리엄)</span>
+            </div>
+        </header>
+
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
+            <div class="flex flex-wrap bg-amber-100/80 p-1.5 rounded-2xl crayon-border-yellow w-full sm:w-auto">
+                <button id="tabFreeBoardBtn" onclick="switchTab('free')" 
+                        class="flex-1 sm:flex-initial px-4 sm:px-6 py-2.5 rounded-xl font-bold text-lg sm:text-xl transition-all flex items-center justify-center gap-2 bg-emerald-500 text-white shadow-md">
+                    <span>💬</span> 자유 게시판
+                </button>
+                <button id="tabPhotoGalleryBtn" onclick="switchTab('photo')" 
+                        class="flex-1 sm:flex-initial px-4 sm:px-6 py-2.5 rounded-xl font-bold text-lg sm:text-xl transition-all flex items-center justify-center gap-2 text-amber-900 hover:bg-amber-200/50">
+                    <span>📸</span> 사진방
+                </button>
+                <button id="tabTrainingBtn" onclick="switchTab('training')" 
+                        class="flex-1 sm:flex-initial px-4 sm:px-6 py-2.5 rounded-xl font-bold text-lg sm:text-xl transition-all flex items-center justify-center gap-2 text-amber-900 hover:bg-amber-200/50">
+                    <span>📝</span> 훈련 일지
+                </button>
+                <button id="tabScheduleBtn" onclick="switchTab('schedule')" 
+                        class="flex-1 sm:flex-initial px-4 sm:px-6 py-2.5 rounded-xl font-bold text-lg sm:text-xl transition-all flex items-center justify-center gap-2 text-amber-900 hover:bg-amber-200/50">
+                    <span>📅</span> 일정
+                </button>
+            </div>
+
+            <button onclick="openNewPostModal()" 
+                    class="w-full sm:w-auto px-6 py-3 bg-rose-500 hover:bg-rose-600 text-white font-bold text-xl rounded-2xl crayon-border-red crayon-shadow-red flex items-center justify-center gap-2 transition-transform active:scale-95">
+                <i data-lucide="pencil-line" class="w-6 h-6"></i>
+                <span>글 쓰기</span>
+            </button>
+        </div>
+
+        <!-- TAB CONTENT 1: Free Board -->
+        <section id="sectionFreeBoard" class="space-y-4">
+            <div class="bg-white p-3 rounded-2xl crayon-border-1 flex flex-col sm:flex-row gap-3 items-center justify-between">
+                <div class="relative w-full sm:w-72">
+                    <input type="text" id="freeSearchInput" onkeyup="filterFreePosts()" placeholder="글 제목, 내용 검색..."
+                           class="w-full pl-10 pr-4 py-2 rounded-xl bg-slate-50 border-2 border-slate-300 text-base focus:outline-none focus:border-sky-500">
+                    <i data-lucide="search" class="w-5 h-5 text-gray-400 absolute left-3 top-2.5"></i>
+                </div>
+                <div class="flex items-center gap-2 text-sm text-gray-600 self-end sm:self-auto">
+                    <span>총 <strong id="freePostCount" class="text-emerald-600 text-lg">0</strong>개의 이야기가 있어요!</span>
+                </div>
+            </div>
+
+            <div id="freePostsContainer" class="space-y-4"></div>
+        </section>
+
+        <!-- TAB CONTENT 2: Photo Gallery -->
+        <section id="sectionPhotoGallery" class="hidden">
+            <div class="bg-sky-50 border-2 border-sky-300 p-4 rounded-2xl mb-6 flex items-center gap-3">
+                <span class="text-3xl">📷</span>
+                <div>
+                    <h3 class="title-font text-xl text-sky-900">축구공원 추억 앨범</h3>
+                    <p class="text-sm text-sky-700">멋진 슛 장면, 훈련 모습, 맛있는 간식 타임 사진을 올려봐요!</p>
+                </div>
+            </div>
+
+            <div id="photoGridContainer" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 pt-2"></div>
+        </section>
+
+        <!-- TAB CONTENT 3: Training Log Board -->
+        <section id="sectionTrainingLog" class="hidden space-y-4">
+            <div class="bg-amber-50 border-2 border-amber-300 p-4 rounded-2xl mb-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <span class="text-3xl">📝</span>
+                    <div>
+                        <h3 class="title-font text-xl text-amber-900">두팍 축구 성장 일지</h3>
+                        <p class="text-sm text-amber-800">훈련목표, 기술, 전술, 패스, 체력 훈련 양식에 맞춰 작성해요! 💪⚽</p>
+                    </div>
+                </div>
+                <button onclick="openNewTrainingPostModal()" 
+                        class="w-full sm:w-auto px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white font-bold text-lg rounded-2xl crayon-border-1 crayon-shadow flex items-center justify-center gap-2 shrink-0 transition-transform active:scale-95">
+                    <i data-lucide="pencil-line" class="w-5 h-5"></i>
+                    <span>훈련 일지 쓰기</span>
+                </button>
+            </div>
+
+            <div id="trainingLogsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+        </section>
+
+        <!-- TAB CONTENT 4: Schedule & Announcements -->
+        <section id="sectionSchedule" class="hidden space-y-4">
+            <div class="bg-amber-50 p-6 rounded-3xl crayon-border-yellow crayon-shadow">
+                <div class="flex items-center gap-3 mb-4">
+                    <span class="text-4xl">⚽</span>
+                    <div>
+                        <h2 class="title-font text-3xl text-amber-900">DoPark-u8 경기 및 연습 일정</h2>
+                        <p class="text-amber-800">이번 주말 축구공원에서 만나는 시간!</p>
+                    </div>
+                </div>
+
+                <div class="space-y-3">
+                    <div class="bg-white p-4 rounded-2xl border-2 border-green-400 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                        <div class="flex items-center gap-3">
+                            <span class="bg-green-100 text-green-800 px-3 py-1 rounded-xl text-sm font-bold border border-green-300">이번주 토요일</span>
+                            <div>
+                                <h4 class="font-bold text-xl text-gray-800">정기 연습 & 패스 훈련</h4>
+                                <p class="text-sm text-gray-600">📍 도박공원 유소년 축구장 | ⏰ 오전 10:00 ~ 12:00</p>
+                            </div>
+                        </div>
+                        <span class="bg-yellow-200 text-yellow-900 text-xs px-3 py-1 rounded-full font-bold">준비물: 축구화, 수건, 텀블러</span>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-2xl border-2 border-sky-400 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                        <div class="flex items-center gap-3">
+                            <span class="bg-sky-100 text-sky-800 px-3 py-1 rounded-xl text-sm font-bold border border-sky-300">다음주 일요일</span>
+                            <div>
+                                <h4 class="font-bold text-xl text-gray-800">친선 매치 vs 파워U8</h4>
+                                <p class="text-sm text-gray-600">📍 중앙공원 풋살장 | ⏰ 오후 02:00</p>
+                            </div>
+                        </div>
+                        <span class="bg-rose-200 text-rose-900 text-xs px-3 py-1 rounded-full font-bold">빨간 유니폼 착용!</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-3xl crayon-border-green">
+                <h3 class="title-font text-2xl text-emerald-800 mb-3 flex items-center gap-2">
+                    <span>🌟</span> 우리들의 축구 약속
+                </h3>
+                <ul class="list-disc list-inside space-y-2 text-gray-700 text-lg">
+                    <li>친구들과 다치지 않게 서로 조심하고 응원해줘요!</li>
+                    <li>경기 끝나고는 고생했다고 서로 손뼉을 쳐요 👏</li>
+                    <li>사진방에 멋진 인생샷을 자주 공유해요 📸</li>
+                    <li>비밀번호는 우리 팀 친구들끼리만 사용하기! 🔑</li>
+                </ul>
+            </div>
+        </section>
+    </div>
+
+    <!-- CREATE POST MODAL -->
+    <div id="postModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-[#faf8f5] crayon-border-yellow crayon-shadow-lg p-6 rounded-3xl max-w-lg w-full max-h-[90vh] overflow-y-auto relative">
+            <button type="button" onclick="closeNewPostModal()" class="absolute top-4 right-4 p-2 bg-gray-200 hover:bg-gray-300 rounded-full">
+                <i data-lucide="x" class="w-6 h-6 text-gray-700"></i>
+            </button>
+
+            <h3 id="modalTitle" class="title-font text-3xl text-emerald-800 mb-4 flex items-center gap-2">
+                <span>✏️</span> 자유 게시판 글쓰기
+            </h3>
+
+            <form id="postForm" onsubmit="handlePostSubmit(event)" class="space-y-4">
+                <div>
+                    <label class="block font-bold text-gray-700 mb-1">게시판 선택</label>
+                    <div class="flex flex-wrap gap-2 sm:gap-4">
+                        <label class="flex items-center gap-1.5 bg-white px-3 py-2 rounded-xl border border-gray-300 cursor-pointer text-sm sm:text-base">
+                            <input type="radio" name="postType" value="free" checked onchange="toggleFormMode('free')">
+                            <span>💬 자유</span>
+                        </label>
+                        <label class="flex items-center gap-1.5 bg-white px-3 py-2 rounded-xl border border-gray-300 cursor-pointer text-sm sm:text-base">
+                            <input type="radio" name="postType" value="photo" onchange="toggleFormMode('photo')">
+                            <span>📸 사진</span>
+                        </label>
+                        <label class="flex items-center gap-1.5 bg-white px-3 py-2 rounded-xl border border-gray-300 cursor-pointer text-sm sm:text-base">
+                            <input type="radio" name="postType" value="training" onchange="toggleFormMode('training')">
+                            <span>📝 훈련 일지</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-bold text-gray-700 mb-1">작성자 (이름/닉네임)</label>
+                    <input type="text" id="postAuthor" required placeholder="예: 김찬유(짠유), 하담맘"
+                           class="w-full px-4 py-2 rounded-xl border-2 border-gray-300 focus:outline-none focus:border-emerald-500 bg-white">
+                </div>
+
+                <div>
+                    <label class="block font-bold text-gray-700 mb-1">제목</label>
+                    <input type="text" id="postTitle" required placeholder="제목을 입력해 주세요"
+                           class="w-full px-4 py-2 rounded-xl border-2 border-gray-300 focus:outline-none focus:border-emerald-500 bg-white">
+                </div>
+
+                <div>
+                    <label class="block font-bold text-gray-700 mb-1">스티커 / 기분 선택</label>
+                    <select id="postSticker" class="w-full px-4 py-2 rounded-xl border-2 border-gray-300 bg-white focus:outline-none">
+                        <option value="⚽">⚽ 축구공 (오늘의 훈련)</option>
+                        <option value="🔥">🔥 불꽃 (열정 만렙)</option>
+                        <option value="⭐">⭐ 최고예요 (성공적인 날)</option>
+                        <option value="🎯">🎯 목표 달성 (정확한 슛)</option>
+                        <option value="🎉">🎉 파티 (즐거운 시간)</option>
+                        <option value="🏃">🏃 슛돌이 (체력 쑥쑥)</option>
+                    </select>
+                </div>
+
+                <div id="trainingRatingGroup" class="hidden space-y-1">
+                    <label class="block font-bold text-amber-900 mb-1">오늘 나의 훈련 만족도 🌟</label>
+                    <select id="trainingRating" class="w-full px-4 py-2 rounded-xl border-2 border-amber-300 bg-amber-50 text-amber-900 focus:outline-none font-bold">
+                        <option value="⭐⭐⭐⭐⭐ 100점 만점에 100점!">⭐⭐⭐⭐⭐ 최고의 훈련!</option>
+                        <option value="⭐⭐⭐⭐ 열심히 달렸다!">⭐⭐⭐⭐ 잘했어!</option>
+                        <option value="⭐⭐⭐ 다음엔 더 잘하자!">⭐⭐⭐ 보통이에요</option>
+                    </select>
+                </div>
+
+                <!-- Structured Training Log Form Fields -->
+                <div id="trainingFieldsGroup" class="hidden space-y-3 p-4 bg-amber-50/90 rounded-2xl border-2 border-amber-300">
+                    <p class="text-xs font-bold text-amber-900 flex items-center gap-1">
+                        <span>📋</span> 훈련 필수 양식 (축구 훈련에 관한 내용을 입력해 주세요)
+                    </p>
+                    <div>
+                        <label class="block text-sm font-bold text-amber-900 mb-1">🎯 훈련 목표</label>
+                        <input type="text" id="trainingGoal" placeholder="예: 약한 발(왼발) 패스 정확도 향상 및 2:1 패스 숙달"
+                               class="w-full px-3 py-2 text-sm rounded-xl border border-amber-300 bg-white focus:outline-none focus:border-amber-500">
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-sm font-bold text-amber-900 mb-1">⚽ 기술 훈련 (드리블/슈팅/터치)</label>
+                            <input type="text" id="trainingTech" placeholder="예: 오른발 강슛 & 인사이드 트래핑"
+                                   class="w-full px-3 py-2 text-sm rounded-xl border border-amber-300 bg-white focus:outline-none focus:border-amber-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-amber-900 mb-1">🧠 전술 훈련 (포지션/수비/공간)</label>
+                            <input type="text" id="trainingTactics" placeholder="예: 2:1 벽패스 침투 & 삼각 패스"
+                                   class="w-full px-3 py-2 text-sm rounded-xl border border-amber-300 bg-white focus:outline-none focus:border-amber-500">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-sm font-bold text-amber-900 mb-1">🦶 패스 훈련</label>
+                            <input type="text" id="trainingPass" placeholder="예: 원터치 인사이드 패스 30회"
+                                   class="w-full px-3 py-2 text-sm rounded-xl border border-amber-300 bg-white focus:outline-none focus:border-amber-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-amber-900 mb-1">⚡ 체력 훈련</label>
+                            <input type="text" id="trainingFitness" placeholder="예: 셔틀런 5세트 & 사이드 스텝"
+                                   class="w-full px-3 py-2 text-sm rounded-xl border border-amber-300 bg-white focus:outline-none focus:border-amber-500">
+                        </div>
+                    </div>
+                </div>
+
+                <div id="photoUploadGroup" class="hidden space-y-2">
+                    <label class="block font-bold text-gray-700">사진 올리기</label>
+                    <div class="border-2 border-dashed border-sky-400 bg-sky-50 rounded-2xl p-4 text-center">
+                        <input type="file" id="photoFileInput" accept="image/*" onchange="previewImage(event)" class="hidden">
+                        <button type="button" onclick="document.getElementById('photoFileInput').click()" 
+                                class="px-4 py-2 bg-sky-500 hover:bg-sky-600 text-white rounded-xl font-bold mb-2">
+                            📁 사진 선택하기
+                        </button>
+                        <p class="text-xs text-sky-700">추억이 담긴 멋진 사진을 올려주세요!</p>
+
+                        <div id="imagePreviewContainer" class="hidden mt-3">
+                            <img id="imagePreview" src="" alt="미리보기" class="max-h-48 mx-auto rounded-xl border-2 border-white shadow">
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label id="contentLabel" class="block font-bold text-gray-700 mb-1">내용</label>
+                    <textarea id="postContent" rows="3" required placeholder="같이 공유하고 싶은 축구 이야기나 소식을 적어주세요!"
+                              class="w-full px-4 py-2 rounded-xl border-2 border-gray-300 focus:outline-none focus:border-emerald-500 bg-white"></textarea>
+                </div>
+
+                <div class="flex justify-end gap-3 pt-2">
+                    <button type="button" onclick="closeNewPostModal()" class="px-5 py-2.5 bg-gray-300 hover:bg-gray-400 font-bold rounded-xl">취소</button>
+                    <button type="submit" class="px-6 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-xl crayon-border-1 crayon-shadow">등록하기 🚀</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- PHOTO LIGHTBOX MODAL -->
+    <div id="photoModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl p-4 max-w-2xl w-full crayon-border-1 crayon-shadow-lg relative overflow-hidden">
+            <button type="button" onclick="closePhotoModal()" class="absolute top-4 right-4 z-10 p-2 bg-gray-200 hover:bg-gray-300 rounded-full">
+                <i data-lucide="x" class="w-6 h-6 text-gray-700"></i>
+            </button>
+            <div class="overflow-hidden rounded-2xl bg-black max-h-[60vh] flex items-center justify-center mb-3">
+                <img id="lightboxImg" src="" alt="확대 사진" class="max-h-[60vh] object-contain">
+            </div>
+            <div class="px-2">
+                <h3 id="lightboxTitle" class="title-font text-2xl text-gray-800 mb-1"></h3>
+                <p id="lightboxCaption" class="text-gray-600 text-base mb-3"></p>
+                <div class="flex items-center justify-between text-xs text-gray-500 pt-2 border-t border-gray-100">
+                    <span id="lightboxAuthor" class="font-bold text-sky-800"></span>
+                    <span id="lightboxDate"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- BAD WORD / TRAINING WARNING MODAL -->
+    <div id="warningModal" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-rose-50 crayon-border-red crayon-shadow-lg p-6 rounded-3xl max-w-sm w-full text-center relative">
+            <div id="warningIcon" class="text-5xl mb-3">🤝🌸</div>
+            <h3 id="warningTitle" class="title-font text-2xl text-rose-800 mb-2">예쁜 말을 사용해요!</h3>
+            <p id="warningText" class="text-gray-700 text-base mb-5 leading-relaxed">
+                친구들에게 상처를 줄 수 있는 비속어나 놀리는 말, 기분 나쁜 표현은 작성할 수 없어요.<br><br>
+                서로 응원하고 격려하는 멋진 두팍 친구가 되어주세요! ⚽✨
+            </p>
+            <button type="button" onclick="closeWarningModal()" class="w-full py-2.5 bg-rose-500 hover:bg-rose-600 text-white font-bold text-lg rounded-xl crayon-border-1 crayon-shadow transition-transform active:scale-95">
+                확인했어요! 👍
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // PASSCODE CONFIG
+        const SECRET_PASSCODE = "2018";
+
+        // RESTRICTED / BAD WORDS LIST
+        const BAD_WORDS = ['바보', '멍청이', '찌질', '나쁜놈', '새끼', '개새', '씨발', '시발', '존나', '지랄', '병신', '미친', '꺼져', '죽어', '못해', '돼지', '쓰레기', '틀딱', '초딩', '꺼라', '닥쳐', '거짓말'];
+
+        // SOCCER TRAINING KEYWORDS FOR VALIDATION
+        const TRAINING_KEYWORDS = ['훈련', '연습', '패스', '슈팅', '슛', '드리블', '전술', '체력', '수비', '공격', '터치', '트래핑', '헤더', '헤딩', '골키퍼', '키퍼', '코치', '감독', '셔틀런', '스텝', '압박', '포지션', '경기', '시합', '킥', '빌드업', '축구', '골', '풋살', '패싱', '유턴', '페인트', '몸싸움'];
+
+        function containsBadWords(text) {
+            if (!text) return false;
+            const cleanText = text.replace(/\s+/g, '').toLowerCase();
+            return BAD_WORDS.some(word => cleanText.includes(word));
+        }
+
+        function showWarningModal(title, text, icon = '⚽') {
+            document.getElementById('warningIcon').innerText = icon;
+            document.getElementById('warningTitle').innerText = title;
+            document.getElementById('warningText').innerHTML = text;
+            document.getElementById('warningModal').classList.remove('hidden');
+        }
+
+        function showBadWordWarning() {
+            showWarningModal('예쁜 말을 사용해요!', '친구들에게 상처를 줄 수 있는 비속어나 놀리는 말은 작성할 수 없어요.<br><br>서로 응원하는 두팍 친구가 되어주세요! 🌸', '🤝🌸');
+        }
+
+        function closeWarningModal() {
+            document.getElementById('warningModal').classList.add('hidden');
+        }
+
+        // PASSCODE AUTHENTICATION
+        function unlockApp(e) {
+            if (e) e.preventDefault();
+            const input = document.getElementById('passcodeInput').value;
+            const errorMsg = document.getElementById('lockErrorMsg');
+            
+            if (input === SECRET_PASSCODE) {
+                document.getElementById('lockScreen').classList.add('hidden');
+                document.getElementById('appContainer').classList.remove('hidden');
+                errorMsg.innerText = '';
+                sessionStorage.setItem('isUnlocked', 'true');
+                renderAll();
+            } else {
+                errorMsg.innerText = '❌ 비밀번호가 틀렸어요! 다시 확인해 주세요.';
+                document.getElementById('passcodeInput').value = '';
+            }
+        }
+
+        function lockApp() {
+            sessionStorage.removeItem('isUnlocked');
+            document.getElementById('lockScreen').classList.remove('hidden');
+            document.getElementById('appContainer').classList.add('hidden');
+            document.getElementById('passcodeInput').value = '';
+            document.getElementById('lockErrorMsg').innerText = '';
+        }
+
+        // INITIAL MOCK DATA (All boards start completely empty with 0 posts)
+        let posts = [];
+
+        let activeTab = 'free';
+        let currentPhotoData = '';
+
+        function switchTab(tabName) {
+            activeTab = tabName;
+            
+            const freeBtn = document.getElementById('tabFreeBoardBtn');
+            const photoBtn = document.getElementById('tabPhotoGalleryBtn');
+            const trainingBtn = document.getElementById('tabTrainingBtn');
+            const schedBtn = document.getElementById('tabScheduleBtn');
+
+            const freeSec = document.getElementById('sectionFreeBoard');
+            const photoSec = document.getElementById('sectionPhotoGallery');
+            const trainingSec = document.getElementById('sectionTrainingLog');
+            const schedSec = document.getElementById('sectionSchedule');
+
+            [freeBtn, photoBtn, trainingBtn, schedBtn].forEach(btn => {
+                btn.className = "flex-1 sm:flex-initial px-4 sm:px-6 py-2.5 rounded-xl font-bold text-lg sm:text-xl transition-all flex items-center justify-center gap-2 text-amber-900 hover:bg-amber-200/50";
+            });
+
+            [freeSec, photoSec, trainingSec, schedSec].forEach(sec => sec.classList.add('hidden'));
+
+            if (tabName === 'free') {
+                freeBtn.className = "flex-1 sm:flex-initial px-4 sm:px-6 py-2.5 rounded-xl font-bold text-lg sm:text-xl transition-all flex items-center justify-center gap-2 bg-emerald-500 text-white shadow-md";
+                freeSec.classList.remove('hidden');
+            } else if (tabName === 'photo') {
+                photoBtn.className = "flex-1 sm:flex-initial px-4 sm:px-6 py-2.5 rounded-xl font-bold text-lg sm:text-xl transition-all flex items-center justify-center gap-2 bg-sky-500 text-white shadow-md";
+                photoSec.classList.remove('hidden');
+            } else if (tabName === 'training') {
+                trainingBtn.className = "flex-1 sm:flex-initial px-4 sm:px-6 py-2.5 rounded-xl font-bold text-lg sm:text-xl transition-all flex items-center justify-center gap-2 bg-amber-500 text-white shadow-md";
+                trainingSec.classList.remove('hidden');
+            } else if (tabName === 'schedule') {
+                schedBtn.className = "flex-1 sm:flex-initial px-4 sm:px-6 py-2.5 rounded-xl font-bold text-lg sm:text-xl transition-all flex items-center justify-center gap-2 bg-amber-600 text-white shadow-md";
+                schedSec.classList.remove('hidden');
+            }
+        }
+
+        function renderAll() {
+            renderFreePosts();
+            renderPhotoGallery();
+            renderTrainingLogs();
+        }
+
+        function renderFreePosts(filteredPosts = null) {
+            const container = document.getElementById('freePostsContainer');
+            const postsToRender = filteredPosts || posts.filter(p => p.type === 'free');
+            
+            document.getElementById('freePostCount').innerText = postsToRender.length;
+
+            if (postsToRender.length === 0) {
+                container.innerHTML = `
+                    <div class="bg-white p-8 rounded-3xl text-center text-gray-500 crayon-border-1">
+                        <span class="text-4xl block mb-2">💬</span>
+                        아직 등록된 이야기가 없어요. 첫 번째 이야기를 들려주세요!
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = postsToRender.map(post => `
+                <div class="bg-white p-5 sm:p-6 rounded-3xl crayon-border-1 crayon-shadow flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between gap-2 border-b border-gray-100 pb-3 mb-3">
+                            <div class="flex items-center gap-2">
+                                <span class="text-3xl">${post.sticker || '⚽'}</span>
+                                <div>
+                                    <h3 class="title-font text-2xl text-gray-800 leading-snug">${escapeHtml(post.title)}</h3>
+                                    <p class="text-xs text-gray-500 font-bold">✍️ 작성자: ${escapeHtml(post.author)} | 📅 ${post.date}</p>
+                                </div>
+                            </div>
+                            <button type="button" onclick="deletePost(${post.id})" class="p-1.5 text-gray-400 hover:text-red-500 rounded-lg transition-colors" title="삭제">
+                                <i data-lucide="trash-2" class="w-5 h-5"></i>
+                            </button>
+                        </div>
+                        <p class="text-gray-700 text-lg leading-relaxed whitespace-pre-line mb-4">${escapeHtml(post.content)}</p>
+                    </div>
+
+                    <div class="pt-3 border-t border-slate-100">
+                        <div class="flex items-center justify-between mb-2">
+                            <button type="button" onclick="toggleLike(${post.id})" class="flex items-center gap-1.5 px-3 py-1 bg-rose-50 hover:bg-rose-100 text-rose-600 text-sm font-bold rounded-xl transition-colors">
+                                <span>❤️</span> 좋아요 <span>${post.likes}</span>
+                            </button>
+                            <span class="text-xs text-gray-500 font-bold">💬 댓글 ${post.comments.length}개</span>
+                        </div>
+
+                        <div class="space-y-2 bg-slate-50 p-3 rounded-2xl border border-slate-200">
+                            ${post.comments.map(c => `
+                                <div class="bg-white p-2 rounded-xl border border-slate-200 text-sm">
+                                    <strong class="text-emerald-800">${escapeHtml(c.author)}:</strong>
+                                    <span class="text-gray-700">${escapeHtml(c.text)}</span>
+                                </div>
+                            `).join('')}
+
+                            <div class="flex gap-2 pt-1">
+                                <input type="text" id="commentAuthor-${post.id}" placeholder="이름" class="w-24 px-3 py-1.5 text-xs rounded-xl border border-slate-300 bg-white">
+                                <input type="text" id="commentText-${post.id}" placeholder="예쁜 댓글을 남겨주세요..." class="flex-1 px-3 py-1.5 text-xs rounded-xl border border-slate-300 bg-white">
+                                <button type="button" onclick="addComment(${post.id})" class="px-3 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold rounded-xl">등록</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            lucide.createIcons();
+        }
+
+        function renderPhotoGallery() {
+            const container = document.getElementById('photoGridContainer');
+            const photoPosts = posts.filter(p => p.type === 'photo');
+
+            if (photoPosts.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full bg-white p-8 rounded-3xl text-center text-gray-500 crayon-border-yellow">
+                        <span class="text-4xl block mb-2">📸</span>
+                        아직 공유된 사진이 없어요! 멋진 순간을 찍어 올려보세요!
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = photoPosts.map(post => `
+                <div class="polaroid crayon-shadow relative flex flex-col justify-between">
+                    <div class="washi-tape"></div>
+                    <div class="cursor-pointer" onclick="openPhotoModal('${escapeHtml(post.photoUrl)}', '${escapeHtml(post.title)}', '${escapeHtml(post.content)}', '${escapeHtml(post.author)}', '${post.date}')">
+                        <div class="overflow-hidden rounded-xl bg-gray-100 aspect-video mb-3">
+                            <img src="${escapeHtml(post.photoUrl)}" alt="${escapeHtml(post.title)}" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300" onerror="this.src='https://placehold.co/600x400/22c55e/ffffff?text=DoPark+Soccer'">
+                        </div>
+                        <div class="flex items-center justify-between gap-1 mb-1">
+                            <h4 class="title-font text-xl text-gray-800 truncate">${escapeHtml(post.title)}</h4>
+                            <span class="text-xl">${post.sticker || '📸'}</span>
+                        </div>
+                        <p class="text-xs text-gray-600 line-clamp-2 mb-2">${escapeHtml(post.content)}</p>
+                    </div>
+
+                    <div class="pt-2 border-t border-gray-200">
+                        <div class="flex items-center justify-between text-xs text-gray-500 mb-2">
+                            <span class="font-bold text-sky-800">✍️ ${escapeHtml(post.author)}</span>
+                            <button type="button" onclick="deletePost(${post.id})" class="text-gray-400 hover:text-red-500 p-1" title="삭제">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <button type="button" onclick="toggleLike(${post.id})" class="flex items-center gap-1 text-xs px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold rounded-lg">
+                                <span>❤️</span> ${post.likes}
+                            </button>
+                            <span class="text-xs text-gray-400">📅 ${post.date}</span>
+                        </div>
+
+                        <div class="mt-2 space-y-1 bg-sky-50/60 p-2 rounded-xl text-xs">
+                            ${post.comments.map(c => `
+                                <div class="bg-white/80 p-1 rounded border border-sky-100">
+                                    <strong class="text-sky-900">${escapeHtml(c.author)}:</strong>
+                                    <span class="text-gray-700">${escapeHtml(c.text)}</span>
+                                </div>
+                            `).join('')}
+
+                            <div class="flex gap-1 pt-1">
+                                <input type="text" id="commentAuthor-${post.id}" placeholder="이름" class="w-16 px-2 py-1 text-xs rounded border border-sky-200 bg-white">
+                                <input type="text" id="commentText-${post.id}" placeholder="댓글..." class="flex-1 px-2 py-1 text-xs rounded border border-sky-200 bg-white">
+                                <button type="button" onclick="addComment(${post.id})" class="px-2 py-1 bg-sky-500 text-white text-xs font-bold rounded">등록</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            lucide.createIcons();
+        }
+
+        function renderTrainingLogs() {
+            const container = document.getElementById('trainingLogsContainer');
+            const logs = posts.filter(p => p.type === 'training');
+
+            if (logs.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full bg-white p-8 rounded-3xl text-center text-gray-500 crayon-border-yellow">
+                        <span class="text-4xl block mb-2">📝</span>
+                        아직 작성된 훈련 일지가 없어요! 첫 축구 훈련 이야기를 작성해 보세요!
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = logs.map(log => `
+                <div class="bg-[#fffdf0] p-5 rounded-3xl paper-card crayon-border-yellow crayon-shadow flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between gap-2 border-b border-amber-200 pb-2 mb-3">
+                            <div class="flex items-center gap-2">
+                                <span class="text-2xl">${log.sticker || '⚽'}</span>
+                                <div>
+                                    <h4 class="title-font text-2xl text-amber-900 leading-snug">${escapeHtml(log.title)}</h4>
+                                    <p class="text-xs text-amber-700 font-bold">✍️ 작성자: ${escapeHtml(log.author)} | 📅 ${log.date}</p>
+                                </div>
+                            </div>
+                            <button type="button" onclick="deletePost(${log.id})" class="p-1 text-gray-400 hover:text-red-500 rounded-lg" title="일지 삭제">
+                                <i data-lucide="trash-2" class="w-5 h-5"></i>
+                            </button>
+                        </div>
+
+                        ${log.rating ? `
+                            <div class="mb-3 px-3 py-1 bg-amber-100 rounded-xl text-xs sm:text-sm font-bold text-amber-900 border border-amber-300 inline-block">
+                                🌟 만족도: ${escapeHtml(log.rating)}
+                            </div>
+                        ` : ''}
+
+                        <!-- Structured Training Sections -->
+                        <div class="space-y-1.5 mb-3 text-xs sm:text-sm">
+                            ${log.goal ? `
+                                <div class="bg-amber-100/70 p-2 rounded-xl border border-amber-200 text-amber-900">
+                                    <strong class="text-amber-900">🎯 훈련 목표:</strong> ${escapeHtml(log.goal)}
+                                </div>
+                            ` : ''}
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                                ${log.tech ? `<div class="bg-white/80 p-2 rounded-xl border border-amber-200 text-gray-800"><strong class="text-emerald-700">⚽ 기술:</strong> ${escapeHtml(log.tech)}</div>` : ''}
+                                ${log.tactics ? `<div class="bg-white/80 p-2 rounded-xl border border-amber-200 text-gray-800"><strong class="text-sky-700">🧠 전술:</strong> ${escapeHtml(log.tactics)}</div>` : ''}
+                                ${log.pass ? `<div class="bg-white/80 p-2 rounded-xl border border-amber-200 text-gray-800"><strong class="text-indigo-700">🦶 패스:</strong> ${escapeHtml(log.pass)}</div>` : ''}
+                                ${log.fitness ? `<div class="bg-white/80 p-2 rounded-xl border border-amber-200 text-gray-800"><strong class="text-rose-700">⚡ 체력:</strong> ${escapeHtml(log.fitness)}</div>` : ''}
+                            </div>
+                        </div>
+
+                        <p class="text-gray-800 text-base leading-relaxed my-2 whitespace-pre-line bg-white/70 p-3 rounded-2xl border border-amber-200">
+                            <strong class="block text-xs text-amber-800 mb-1">💬 훈련 총평 / 소감:</strong>
+                            ${escapeHtml(log.content)}
+                        </p>
+                    </div>
+
+                    <div class="mt-3 pt-3 border-t border-amber-200">
+                        <div class="flex items-center justify-between mb-2">
+                            <button type="button" onclick="toggleLike(${log.id})" class="flex items-center gap-1.5 px-3 py-1 bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-bold rounded-xl transition-colors">
+                                <span>❤️</span> 좋아요 <span>${log.likes}</span>
+                            </button>
+                            <span class="text-xs text-gray-500 font-bold">💬 댓글 ${log.comments.length}개</span>
+                        </div>
+
+                        <div class="space-y-1.5 bg-white/80 p-2 rounded-xl border border-amber-200 text-xs">
+                            ${log.comments.map(c => `
+                                <div class="bg-amber-50/50 p-1.5 rounded-lg border border-amber-100">
+                                    <strong class="text-amber-900">${escapeHtml(c.author)}:</strong>
+                                    <span class="text-gray-700">${escapeHtml(c.text)}</span>
+                                </div>
+                            `).join('')}
+
+                            <div class="flex gap-1 pt-1">
+                                <input type="text" id="commentAuthor-${log.id}" placeholder="이름" class="w-20 px-2 py-1 text-xs rounded border border-amber-300 bg-white">
+                                <input type="text" id="commentText-${log.id}" placeholder="댓글 달기..." class="flex-1 px-2 py-1 text-xs rounded border border-amber-300 bg-white">
+                                <button type="button" onclick="addComment(${log.id})" class="px-2.5 py-1 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold rounded">등록</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            lucide.createIcons();
+        }
+
+        function filterFreePosts() {
+            const query = document.getElementById('freeSearchInput').value.toLowerCase().trim();
+            const freePosts = posts.filter(p => p.type === 'free');
+            if (!query) {
+                renderFreePosts(freePosts);
+                return;
+            }
+            const filtered = freePosts.filter(p => 
+                p.title.toLowerCase().includes(query) || 
+                p.content.toLowerCase().includes(query) ||
+                p.author.toLowerCase().includes(query)
+            );
+            renderFreePosts(filtered);
+        }
+
+        function toggleLike(id) {
+            const post = posts.find(p => p.id === id);
+            if (post) {
+                post.likes += 1;
+                renderAll();
+            }
+        }
+
+        function addComment(postId) {
+            const authorInput = document.getElementById(`commentAuthor-${postId}`);
+            const textInput = document.getElementById(`commentText-${postId}`);
+            
+            if (!authorInput || !textInput) return;
+
+            const author = authorInput.value.trim();
+            const text = textInput.value.trim();
+
+            if (!author || !text) {
+                return;
+            }
+
+            if (containsBadWords(author) || containsBadWords(text)) {
+                showBadWordWarning();
+                return;
+            }
+
+            const post = posts.find(p => p.id === postId);
+            if (post) {
+                post.comments.push({ author, text });
+                renderAll();
+            }
+        }
+
+        function deletePost(id) {
+            posts = posts.filter(p => p.id !== id);
+            renderAll();
+        }
+
+        function openNewPostModal() {
+            document.getElementById('postModal').classList.remove('hidden');
+            const mode = activeTab === 'photo' ? 'photo' : (activeTab === 'training' ? 'training' : 'free');
+            toggleFormMode(mode);
+            document.querySelectorAll('input[name="postType"]').forEach(r => {
+                r.checked = (r.value === mode);
+            });
+        }
+
+        function openNewTrainingPostModal() {
+            document.getElementById('postModal').classList.remove('hidden');
+            toggleFormMode('training');
+            document.querySelectorAll('input[name="postType"]').forEach(r => {
+                r.checked = (r.value === 'training');
+            });
+        }
+
+        function closeNewPostModal() {
+            document.getElementById('postModal').classList.add('hidden');
+            document.getElementById('postForm').reset();
+            document.getElementById('imagePreviewContainer').classList.add('hidden');
+            currentPhotoData = '';
+        }
+
+        function toggleFormMode(mode) {
+            const photoGroup = document.getElementById('photoUploadGroup');
+            const ratingGroup = document.getElementById('trainingRatingGroup');
+            const fieldsGroup = document.getElementById('trainingFieldsGroup');
+            const modalTitle = document.getElementById('modalTitle');
+            const contentLabel = document.getElementById('contentLabel');
+
+            if (mode === 'photo') {
+                photoGroup.classList.remove('hidden');
+                ratingGroup.classList.add('hidden');
+                fieldsGroup.classList.add('hidden');
+                modalTitle.innerHTML = '<span>📸</span> 사진방 사진 올리기';
+                contentLabel.innerText = '사진 설명 / 소감';
+            } else if (mode === 'training') {
+                photoGroup.classList.add('hidden');
+                ratingGroup.classList.remove('hidden');
+                fieldsGroup.classList.remove('hidden');
+                modalTitle.innerHTML = '<span>📝</span> 훈련 일지 작성하기';
+                contentLabel.innerText = '오늘 훈련 총평 / 느낀 점 (소감)';
+            } else {
+                photoGroup.classList.add('hidden');
+                ratingGroup.classList.add('hidden');
+                fieldsGroup.classList.add('hidden');
+                modalTitle.innerHTML = '<span>✏️</span> 자유 게시판 글쓰기';
+                contentLabel.innerText = '내용';
+            }
+        }
+
+        function previewImage(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    currentPhotoData = e.target.result;
+                    const img = document.getElementById('imagePreview');
+                    img.src = currentPhotoData;
+                    document.getElementById('imagePreviewContainer').classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function handlePostSubmit(e) {
+            e.preventDefault();
+
+            const postType = document.querySelector('input[name="postType"]:checked').value;
+            const author = document.getElementById('postAuthor').value.trim();
+            const title = document.getElementById('postTitle').value.trim();
+            const sticker = document.getElementById('postSticker').value;
+            const content = document.getElementById('postContent').value.trim();
+            const rating = document.getElementById('trainingRating').value;
+
+            // Check bad words
+            if (containsBadWords(author) || containsBadWords(title) || containsBadWords(content)) {
+                showBadWordWarning();
+                return;
+            }
+
+            // Training Log Validation
+            let goal = '', tech = '', tactics = '', pass = '', fitness = '';
+            if (postType === 'training') {
+                goal = document.getElementById('trainingGoal').value.trim();
+                tech = document.getElementById('trainingTech').value.trim();
+                tactics = document.getElementById('trainingTactics').value.trim();
+                pass = document.getElementById('trainingPass').value.trim();
+                fitness = document.getElementById('trainingFitness').value.trim();
+
+                const combinedTrainingText = `${title} ${content} ${goal} ${tech} ${tactics} ${pass} ${fitness}`.toLowerCase();
+                
+                // Require at least 1 training field filled
+                const filledFieldsCount = [goal, tech, tactics, pass, fitness].filter(val => val.length > 0).length;
+                const hasTrainingKeyword = TRAINING_KEYWORDS.some(word => combinedTrainingText.includes(word));
+
+                if (filledFieldsCount < 1) {
+                    showWarningModal(
+                        '훈련 일지 항목을 입력해주세요! ⚽',
+                        '훈련 일지에는 <strong>훈련 목표, 기술, 전술, 패스, 체력 훈련</strong> 양식을 작성해야 합니다.<br><br>일상 수다나 잡담은 <strong>[자유 게시판]</strong>을 이용해 주세요! 😊',
+                        '⚽'
+                    );
+                    return;
+                }
+
+                if (!hasTrainingKeyword) {
+                    showWarningModal(
+                        '훈련에 관한 내용만 작성 가능해요! ⚽',
+                        '훈련 일지 게시판에는 <strong>축구 훈련(기술, 전술, 패스, 체력, 경기 연습 등)</strong>과 관련된 이야기만 작성할 수 있어요.<br><br>훈련과 관련 없는 내용은 작성이 제한됩니다. ⚽✨',
+                        '🚫'
+                    );
+                    return;
+                }
+            }
+
+            let finalPhotoUrl = currentPhotoData;
+            if (postType === 'photo' && !finalPhotoUrl) {
+                finalPhotoUrl = 'https://images.unsplash.com/photo-1517927033932-b3d18e61fb3a?auto=format&fit=crop&w=800&q=80';
+            }
+
+            const now = new Date();
+            const dateStr = `${now.getFullYear()}.${String(now.getMonth()+1).padStart(2,'0')}.${String(now.getDate()).padStart(2,'0')}`;
+
+            const newPost = {
+                id: Date.now(),
+                type: postType,
+                title,
+                author,
+                sticker,
+                content,
+                rating: postType === 'training' ? rating : null,
+                goal,
+                tech,
+                tactics,
+                pass,
+                fitness,
+                photoUrl: finalPhotoUrl,
+                date: dateStr,
+                likes: 0,
+                comments: []
+            };
+
+            posts.unshift(newPost);
+            closeNewPostModal();
+
+            if (postType === 'photo') {
+                switchTab('photo');
+            } else if (postType === 'training') {
+                switchTab('training');
+            } else {
+                switchTab('free');
+            }
+
+            renderAll();
+        }
+
+        function openPhotoModal(url, title, caption, author, date) {
+            document.getElementById('lightboxImg').src = url;
+            document.getElementById('lightboxTitle').innerText = title;
+            document.getElementById('lightboxCaption').innerText = caption;
+            document.getElementById('lightboxAuthor').innerText = `📷 작성자: ${author}`;
+            document.getElementById('lightboxDate').innerText = `📅 ${date}`;
+            document.getElementById('photoModal').classList.remove('hidden');
+        }
+
+        function closePhotoModal() {
+            document.getElementById('photoModal').classList.add('hidden');
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            if (sessionStorage.getItem('isUnlocked') === 'true') {
+                document.getElementById('lockScreen').classList.add('hidden');
+                document.getElementById('appContainer').classList.remove('hidden');
+                renderAll();
+            } else {
+                document.getElementById('lockScreen').classList.remove('hidden');
+                document.getElementById('appContainer').classList.add('hidden');
+            }
+            lucide.createIcons();
+        });
+    </script>
+</body>
+</html>

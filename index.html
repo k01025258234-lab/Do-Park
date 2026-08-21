@@ -435,7 +435,7 @@
 
         function getPostsCollectionRef() {
             if (!db) return null;
-            return collection(db, 'artifacts', appId, 'posts');
+            return collection(db, 'artifacts', appId, 'public', 'data', 'posts');
         }
 
         function initFirestoreListener() {
@@ -744,7 +744,7 @@
                 post.likes = (post.likes || 0) + 1;
                 if (db) {
                     try {
-                        const docRef = doc(db, 'artifacts', appId, 'posts', id);
+                        const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'posts', id);
                         await updateDoc(docRef, { likes: post.likes });
                     } catch (e) {
                         console.warn("Firestore sync warning, saved locally");
@@ -779,7 +779,7 @@
                 post.comments = [...(post.comments || []), { author, text }];
                 if (db) {
                     try {
-                        const docRef = doc(db, 'artifacts', appId, 'posts', postId);
+                        const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'posts', id);
                         await updateDoc(docRef, { comments: post.comments });
                     } catch (e) {
                         console.warn("Firestore comment sync warning, saved locally");
@@ -796,7 +796,7 @@
             posts = posts.filter(p => p.id !== id);
             if (db) {
                 try {
-                    const docRef = doc(db, 'artifacts', appId, 'posts', id);
+                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'posts', id);
                     await deleteDoc(docRef);
                 } catch (e) {
                     console.warn("Firestore delete warning");
@@ -960,7 +960,7 @@
 
             if (db) {
                 try {
-                    const docRef = doc(db, 'artifacts', appId, 'posts', postId);
+                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'posts', postId);
                     await setDoc(docRef, newPost);
                 } catch (e) {
                     console.warn("Firestore save warning, saved locally");

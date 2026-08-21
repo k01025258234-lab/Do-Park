@@ -122,7 +122,6 @@
 </head>
 <body class="min-h-screen flex flex-col pb-12">
 
-    <!-- Lock Screen Modal (Passcode Protection) -->
     <div id="lockScreen" class="fixed inset-0 bg-emerald-900/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
         <div class="bg-[#fefce8] crayon-border-green crayon-shadow-lg p-6 sm:p-8 rounded-3xl max-w-md w-full text-center relative overflow-hidden">
             <div class="absolute -top-4 -left-4 text-4xl floating-art">⚽</div>
@@ -155,10 +154,9 @@
         </div>
     </div>
 
-    <!-- MAIN CONTAINER (hidden until unlocked) -->
     <div id="appContainer" class="hidden max-w-5xl w-full mx-auto px-3 sm:px-6 pt-4 flex-1 flex flex-col">
 
-        <!-- Header Banner with Park & Soccer Pitch theme -->
+        <!-- Header Banner -->
         <header class="relative bg-gradient-to-r from-emerald-400 via-green-300 to-sky-300 rounded-3xl p-6 mb-6 crayon-border-green crayon-shadow overflow-hidden">
             <div class="absolute inset-0 opacity-15 pointer-events-none">
                 <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
@@ -177,6 +175,9 @@
                         <div class="flex items-center justify-center md:justify-start gap-2">
                             <span class="bg-yellow-300 text-yellow-900 text-xs px-2.5 py-0.5 rounded-full font-bold border border-yellow-500">Do-Park</span>
                             <span class="bg-sky-200 text-sky-800 text-xs px-2.5 py-0.5 rounded-full font-bold border border-sky-400">두팍친구들</span>
+                            <span class="bg-emerald-700 text-white text-xs px-2.5 py-0.5 rounded-full font-bold flex items-center gap-1">
+                                <span class="w-2 h-2 rounded-full bg-emerald-300 animate-pulse"></span> 실시간 공유중
+                            </span>
                         </div>
                         <h1 class="title-font text-4xl sm:text-5xl text-emerald-900 mt-1 tracking-wide drop-shadow-sm">DoPark-u8 수다방</h1>
                         <p class="text-emerald-800 text-lg font-bold">뛰어놀고 슛 골인! 우리들의 축구 이야기 ⚽🌳</p>
@@ -234,7 +235,6 @@
             </button>
         </div>
 
-        <!-- TAB CONTENT 1: Free Board -->
         <section id="sectionFreeBoard" class="space-y-4">
             <div class="bg-white p-3 rounded-2xl crayon-border-1 flex flex-col sm:flex-row gap-3 items-center justify-between">
                 <div class="relative w-full sm:w-72">
@@ -250,7 +250,6 @@
             <div id="freePostsContainer" class="space-y-4"></div>
         </section>
 
-        <!-- TAB CONTENT 2: Photo Gallery -->
         <section id="sectionPhotoGallery" class="hidden">
             <div class="bg-sky-50 border-2 border-sky-300 p-4 rounded-2xl mb-6 flex items-center gap-3">
                 <span class="text-3xl">📷</span>
@@ -263,7 +262,6 @@
             <div id="photoGridContainer" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 pt-2"></div>
         </section>
 
-        <!-- TAB CONTENT 3: Training Log Board -->
         <section id="sectionTrainingLog" class="hidden space-y-4">
             <div class="bg-amber-50 border-2 border-amber-300 p-4 rounded-2xl mb-4 flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div class="flex items-center gap-3">
@@ -283,7 +281,6 @@
             <div id="trainingLogsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
         </section>
 
-        <!-- TAB CONTENT 4: Schedule & Announcements -->
         <section id="sectionSchedule" class="hidden space-y-4">
             <div class="bg-amber-50 p-6 rounded-3xl crayon-border-yellow crayon-shadow">
                 <div class="flex items-center gap-3 mb-4">
@@ -333,7 +330,6 @@
         </section>
     </div>
 
-    <!-- CREATE POST MODAL -->
     <div id="postModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-[#faf8f5] crayon-border-yellow crayon-shadow-lg p-6 rounded-3xl max-w-lg w-full max-h-[90vh] overflow-y-auto relative">
             <button type="button" onclick="closeNewPostModal()" class="absolute top-4 right-4 p-2 bg-gray-200 hover:bg-gray-300 rounded-full">
@@ -462,7 +458,6 @@
         </div>
     </div>
 
-    <!-- PHOTO LIGHTBOX MODAL -->
     <div id="photoModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl p-4 max-w-2xl w-full crayon-border-1 crayon-shadow-lg relative overflow-hidden">
             <button type="button" onclick="closePhotoModal()" class="absolute top-4 right-4 z-10 p-2 bg-gray-200 hover:bg-gray-300 rounded-full">
@@ -482,7 +477,6 @@
         </div>
     </div>
 
-    <!-- BAD WORD / TRAINING WARNING MODAL -->
     <div id="warningModal" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center p-4">
         <div class="bg-rose-50 crayon-border-red crayon-shadow-lg p-6 rounded-3xl max-w-sm w-full text-center relative">
             <div id="warningIcon" class="text-5xl mb-3">🤝🌸</div>
@@ -497,7 +491,42 @@
         </div>
     </div>
 
-    <script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, doc, setDoc, deleteDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Global Firebase handles
+        let db, auth, userId = null;
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'dopark-u8-chat';
+
+        try {
+            const firebaseConfig = JSON.parse(__firebase_config);
+            const app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            db = getFirestore(app);
+
+            const initAuth = async () => {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+                userId = auth.currentUser?.uid || crypto.randomUUID();
+                initFirestoreListener();
+            };
+
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    userId = user.uid;
+                }
+            });
+
+            initAuth();
+        } catch (e) {
+            console.error("Firebase initialization failed:", e);
+        }
+
         // PASSCODE CONFIG
         const SECRET_PASSCODE = "2018";
 
@@ -524,14 +553,14 @@
             showWarningModal('예쁜 말을 사용해요!', '친구들에게 상처를 줄 수 있는 비속어나 놀리는 말은 작성할 수 없어요.<br><br>서로 응원하는 두팍 친구가 되어주세요! 🌸', '🤝🌸');
         }
 
-        function closeWarningModal() {
+        window.closeWarningModal = function() {
             document.getElementById('warningModal').classList.add('hidden');
         }
 
         // PASSCODE AUTHENTICATION
-        function unlockApp(e) {
+        window.unlockApp = function(e) {
             if (e) e.preventDefault();
-            const input = document.getElementById('passcodeInput').value;
+            const input = document.getElementById('passcodeInput').value.trim();
             const errorMsg = document.getElementById('lockErrorMsg');
             
             if (input === SECRET_PASSCODE) {
@@ -546,7 +575,7 @@
             }
         }
 
-        function lockApp() {
+        window.lockApp = function() {
             sessionStorage.removeItem('isUnlocked');
             document.getElementById('lockScreen').classList.remove('hidden');
             document.getElementById('appContainer').classList.add('hidden');
@@ -554,13 +583,11 @@
             document.getElementById('lockErrorMsg').innerText = '';
         }
 
-        // INITIAL MOCK DATA (All boards start completely empty with 0 posts)
         let posts = [];
-
         let activeTab = 'free';
         let currentPhotoData = '';
 
-        function switchTab(tabName) {
+        window.switchTab = function(tabName) {
             activeTab = tabName;
             
             const freeBtn = document.getElementById('tabFreeBoardBtn');
@@ -591,6 +618,26 @@
             } else if (tabName === 'schedule') {
                 schedBtn.className = "flex-1 sm:flex-initial px-4 sm:px-6 py-2.5 rounded-xl font-bold text-lg sm:text-xl transition-all flex items-center justify-center gap-2 bg-amber-600 text-white shadow-md";
                 schedSec.classList.remove('hidden');
+            }
+        }
+
+        function initFirestoreListener() {
+            if (!db) return;
+            try {
+                const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'posts');
+                onSnapshot(colRef, (snapshot) => {
+                    posts = [];
+                    snapshot.forEach(docSnap => {
+                        posts.push({ id: docSnap.id, ...docSnap.data() });
+                    });
+                    // Sort by newest first
+                    posts.sort((a, b) => b.createdAt - a.createdAt);
+                    renderAll();
+                }, (error) => {
+                    console.error("Error reading posts from Firestore:", error);
+                });
+            } catch (e) {
+                console.error("Firestore listener setup error:", e);
             }
         }
 
@@ -627,7 +674,7 @@
                                     <p class="text-xs text-gray-500 font-bold">✍️ 작성자: ${escapeHtml(post.author)} | 📅 ${post.date}</p>
                                 </div>
                             </div>
-                            <button type="button" onclick="deletePost(${post.id})" class="p-1.5 text-gray-400 hover:text-red-500 rounded-lg transition-colors" title="삭제">
+                            <button type="button" onclick="deletePost('${post.id}')" class="p-1.5 text-gray-400 hover:text-red-500 rounded-lg transition-colors" title="삭제">
                                 <i data-lucide="trash-2" class="w-5 h-5"></i>
                             </button>
                         </div>
@@ -636,14 +683,14 @@
 
                     <div class="pt-3 border-t border-slate-100">
                         <div class="flex items-center justify-between mb-2">
-                            <button type="button" onclick="toggleLike(${post.id})" class="flex items-center gap-1.5 px-3 py-1 bg-rose-50 hover:bg-rose-100 text-rose-600 text-sm font-bold rounded-xl transition-colors">
-                                <span>❤️</span> 좋아요 <span>${post.likes}</span>
+                            <button type="button" onclick="toggleLike('${post.id}')" class="flex items-center gap-1.5 px-3 py-1 bg-rose-50 hover:bg-rose-100 text-rose-600 text-sm font-bold rounded-xl transition-colors">
+                                <span>❤️</span> 좋아요 <span>${post.likes || 0}</span>
                             </button>
-                            <span class="text-xs text-gray-500 font-bold">💬 댓글 ${post.comments.length}개</span>
+                            <span class="text-xs text-gray-500 font-bold">💬 댓글 ${(post.comments || []).length}개</span>
                         </div>
 
                         <div class="space-y-2 bg-slate-50 p-3 rounded-2xl border border-slate-200">
-                            ${post.comments.map(c => `
+                            ${(post.comments || []).map(c => `
                                 <div class="bg-white p-2 rounded-xl border border-slate-200 text-sm">
                                     <strong class="text-emerald-800">${escapeHtml(c.author)}:</strong>
                                     <span class="text-gray-700">${escapeHtml(c.text)}</span>
@@ -653,7 +700,7 @@
                             <div class="flex gap-2 pt-1">
                                 <input type="text" id="commentAuthor-${post.id}" placeholder="이름" class="w-24 px-3 py-1.5 text-xs rounded-xl border border-slate-300 bg-white">
                                 <input type="text" id="commentText-${post.id}" placeholder="예쁜 댓글을 남겨주세요..." class="flex-1 px-3 py-1.5 text-xs rounded-xl border border-slate-300 bg-white">
-                                <button type="button" onclick="addComment(${post.id})" class="px-3 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold rounded-xl">등록</button>
+                                <button type="button" onclick="addComment('${post.id}')" class="px-3 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold rounded-xl">등록</button>
                             </div>
                         </div>
                     </div>
@@ -694,19 +741,19 @@
                     <div class="pt-2 border-t border-gray-200">
                         <div class="flex items-center justify-between text-xs text-gray-500 mb-2">
                             <span class="font-bold text-sky-800">✍️ ${escapeHtml(post.author)}</span>
-                            <button type="button" onclick="deletePost(${post.id})" class="text-gray-400 hover:text-red-500 p-1" title="삭제">
+                            <button type="button" onclick="deletePost('${post.id}')" class="text-gray-400 hover:text-red-500 p-1" title="삭제">
                                 <i data-lucide="trash-2" class="w-4 h-4"></i>
                             </button>
                         </div>
                         <div class="flex items-center justify-between">
-                            <button type="button" onclick="toggleLike(${post.id})" class="flex items-center gap-1 text-xs px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold rounded-lg">
-                                <span>❤️</span> ${post.likes}
+                            <button type="button" onclick="toggleLike('${post.id}')" class="flex items-center gap-1 text-xs px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold rounded-lg">
+                                <span>❤️</span> ${post.likes || 0}
                             </button>
                             <span class="text-xs text-gray-400">📅 ${post.date}</span>
                         </div>
 
                         <div class="mt-2 space-y-1 bg-sky-50/60 p-2 rounded-xl text-xs">
-                            ${post.comments.map(c => `
+                            ${(post.comments || []).map(c => `
                                 <div class="bg-white/80 p-1 rounded border border-sky-100">
                                     <strong class="text-sky-900">${escapeHtml(c.author)}:</strong>
                                     <span class="text-gray-700">${escapeHtml(c.text)}</span>
@@ -716,7 +763,7 @@
                             <div class="flex gap-1 pt-1">
                                 <input type="text" id="commentAuthor-${post.id}" placeholder="이름" class="w-16 px-2 py-1 text-xs rounded border border-sky-200 bg-white">
                                 <input type="text" id="commentText-${post.id}" placeholder="댓글..." class="flex-1 px-2 py-1 text-xs rounded border border-sky-200 bg-white">
-                                <button type="button" onclick="addComment(${post.id})" class="px-2 py-1 bg-sky-500 text-white text-xs font-bold rounded">등록</button>
+                                <button type="button" onclick="addComment('${post.id}')" class="px-2 py-1 bg-sky-500 text-white text-xs font-bold rounded">등록</button>
                             </div>
                         </div>
                     </div>
@@ -751,7 +798,7 @@
                                     <p class="text-xs text-amber-700 font-bold">✍️ 작성자: ${escapeHtml(log.author)} | 📅 ${log.date}</p>
                                 </div>
                             </div>
-                            <button type="button" onclick="deletePost(${log.id})" class="p-1 text-gray-400 hover:text-red-500 rounded-lg" title="일지 삭제">
+                            <button type="button" onclick="deletePost('${log.id}')" class="p-1 text-gray-400 hover:text-red-500 rounded-lg" title="일지 삭제">
                                 <i data-lucide="trash-2" class="w-5 h-5"></i>
                             </button>
                         </div>
@@ -785,14 +832,14 @@
 
                     <div class="mt-3 pt-3 border-t border-amber-200">
                         <div class="flex items-center justify-between mb-2">
-                            <button type="button" onclick="toggleLike(${log.id})" class="flex items-center gap-1.5 px-3 py-1 bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-bold rounded-xl transition-colors">
-                                <span>❤️</span> 좋아요 <span>${log.likes}</span>
+                            <button type="button" onclick="toggleLike('${log.id}')" class="flex items-center gap-1.5 px-3 py-1 bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-bold rounded-xl transition-colors">
+                                <span>❤️</span> 좋아요 <span>${log.likes || 0}</span>
                             </button>
-                            <span class="text-xs text-gray-500 font-bold">💬 댓글 ${log.comments.length}개</span>
+                            <span class="text-xs text-gray-500 font-bold">💬 댓글 ${(log.comments || []).length}개</span>
                         </div>
 
                         <div class="space-y-1.5 bg-white/80 p-2 rounded-xl border border-amber-200 text-xs">
-                            ${log.comments.map(c => `
+                            ${(log.comments || []).map(c => `
                                 <div class="bg-amber-50/50 p-1.5 rounded-lg border border-amber-100">
                                     <strong class="text-amber-900">${escapeHtml(c.author)}:</strong>
                                     <span class="text-gray-700">${escapeHtml(c.text)}</span>
@@ -802,7 +849,7 @@
                             <div class="flex gap-1 pt-1">
                                 <input type="text" id="commentAuthor-${log.id}" placeholder="이름" class="w-20 px-2 py-1 text-xs rounded border border-amber-300 bg-white">
                                 <input type="text" id="commentText-${log.id}" placeholder="댓글 달기..." class="flex-1 px-2 py-1 text-xs rounded border border-amber-300 bg-white">
-                                <button type="button" onclick="addComment(${log.id})" class="px-2.5 py-1 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold rounded">등록</button>
+                                <button type="button" onclick="addComment('${log.id}')" class="px-2.5 py-1 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold rounded">등록</button>
                             </div>
                         </div>
                     </div>
@@ -812,7 +859,7 @@
             lucide.createIcons();
         }
 
-        function filterFreePosts() {
+        window.filterFreePosts = function() {
             const query = document.getElementById('freeSearchInput').value.toLowerCase().trim();
             const freePosts = posts.filter(p => p.type === 'free');
             if (!query) {
@@ -827,15 +874,22 @@
             renderFreePosts(filtered);
         }
 
-        function toggleLike(id) {
+        window.toggleLike = async function(id) {
+            if (!db) return;
             const post = posts.find(p => p.id === id);
             if (post) {
-                post.likes += 1;
-                renderAll();
+                const newLikes = (post.likes || 0) + 1;
+                try {
+                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'posts', id);
+                    await updateDoc(docRef, { likes: newLikes });
+                } catch (e) {
+                    console.error("Error updating likes:", e);
+                }
             }
         }
 
-        function addComment(postId) {
+        window.addComment = async function(postId) {
+            if (!db) return;
             const authorInput = document.getElementById(`commentAuthor-${postId}`);
             const textInput = document.getElementById(`commentText-${postId}`);
             
@@ -844,9 +898,7 @@
             const author = authorInput.value.trim();
             const text = textInput.value.trim();
 
-            if (!author || !text) {
-                return;
-            }
+            if (!author || !text) return;
 
             if (containsBadWords(author) || containsBadWords(text)) {
                 showBadWordWarning();
@@ -855,17 +907,29 @@
 
             const post = posts.find(p => p.id === postId);
             if (post) {
-                post.comments.push({ author, text });
-                renderAll();
+                const updatedComments = [...(post.comments || []), { author, text }];
+                try {
+                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'posts', postId);
+                    await updateDoc(docRef, { comments: updatedComments });
+                    authorInput.value = '';
+                    textInput.value = '';
+                } catch (e) {
+                    console.error("Error adding comment:", e);
+                }
             }
         }
 
-        function deletePost(id) {
-            posts = posts.filter(p => p.id !== id);
-            renderAll();
+        window.deletePost = async function(id) {
+            if (!db) return;
+            try {
+                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'posts', id);
+                await deleteDoc(docRef);
+            } catch (e) {
+                console.error("Error deleting post:", e);
+            }
         }
 
-        function openNewPostModal() {
+        window.openNewPostModal = function() {
             document.getElementById('postModal').classList.remove('hidden');
             const mode = activeTab === 'photo' ? 'photo' : (activeTab === 'training' ? 'training' : 'free');
             toggleFormMode(mode);
@@ -874,7 +938,7 @@
             });
         }
 
-        function openNewTrainingPostModal() {
+        window.openNewTrainingPostModal = function() {
             document.getElementById('postModal').classList.remove('hidden');
             toggleFormMode('training');
             document.querySelectorAll('input[name="postType"]').forEach(r => {
@@ -882,14 +946,14 @@
             });
         }
 
-        function closeNewPostModal() {
+        window.closeNewPostModal = function() {
             document.getElementById('postModal').classList.add('hidden');
             document.getElementById('postForm').reset();
             document.getElementById('imagePreviewContainer').classList.add('hidden');
             currentPhotoData = '';
         }
 
-        function toggleFormMode(mode) {
+        window.toggleFormMode = function(mode) {
             const photoGroup = document.getElementById('photoUploadGroup');
             const ratingGroup = document.getElementById('trainingRatingGroup');
             const fieldsGroup = document.getElementById('trainingFieldsGroup');
@@ -917,7 +981,7 @@
             }
         }
 
-        function previewImage(event) {
+        window.previewImage = function(event) {
             const file = event.target.files[0];
             if (file) {
                 const reader = new FileReader();
@@ -931,8 +995,9 @@
             }
         }
 
-        function handlePostSubmit(e) {
+        window.handlePostSubmit = async function(e) {
             e.preventDefault();
+            if (!db) return;
 
             const postType = document.querySelector('input[name="postType"]:checked').value;
             const author = document.getElementById('postAuthor').value.trim();
@@ -958,7 +1023,6 @@
 
                 const combinedTrainingText = `${title} ${content} ${goal} ${tech} ${tactics} ${pass} ${fitness}`.toLowerCase();
                 
-                // Require at least 1 training field filled
                 const filledFieldsCount = [goal, tech, tactics, pass, fitness].filter(val => val.length > 0).length;
                 const hasTrainingKeyword = TRAINING_KEYWORDS.some(word => combinedTrainingText.includes(word));
 
@@ -988,9 +1052,9 @@
 
             const now = new Date();
             const dateStr = `${now.getFullYear()}.${String(now.getMonth()+1).padStart(2,'0')}.${String(now.getDate()).padStart(2,'0')}`;
+            const postId = 'post_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
 
             const newPost = {
-                id: Date.now(),
                 type: postType,
                 title,
                 author,
@@ -1004,25 +1068,29 @@
                 fitness,
                 photoUrl: finalPhotoUrl,
                 date: dateStr,
+                createdAt: Date.now(),
                 likes: 0,
                 comments: []
             };
 
-            posts.unshift(newPost);
-            closeNewPostModal();
+            try {
+                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'posts', postId);
+                await setDoc(docRef, newPost);
+                closeNewPostModal();
 
-            if (postType === 'photo') {
-                switchTab('photo');
-            } else if (postType === 'training') {
-                switchTab('training');
-            } else {
-                switchTab('free');
+                if (postType === 'photo') {
+                    switchTab('photo');
+                } else if (postType === 'training') {
+                    switchTab('training');
+                } else {
+                    switchTab('free');
+                }
+            } catch (e) {
+                console.error("Error creating post in Firestore:", e);
             }
-
-            renderAll();
         }
 
-        function openPhotoModal(url, title, caption, author, date) {
+        window.openPhotoModal = function(url, title, caption, author, date) {
             document.getElementById('lightboxImg').src = url;
             document.getElementById('lightboxTitle').innerText = title;
             document.getElementById('lightboxCaption').innerText = caption;
@@ -1031,7 +1099,7 @@
             document.getElementById('photoModal').classList.remove('hidden');
         }
 
-        function closePhotoModal() {
+        window.closePhotoModal = function() {
             document.getElementById('photoModal').classList.add('hidden');
         }
 
@@ -1049,7 +1117,6 @@
             if (sessionStorage.getItem('isUnlocked') === 'true') {
                 document.getElementById('lockScreen').classList.add('hidden');
                 document.getElementById('appContainer').classList.remove('hidden');
-                renderAll();
             } else {
                 document.getElementById('lockScreen').classList.remove('hidden');
                 document.getElementById('appContainer').classList.add('hidden');

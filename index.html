@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Do-Park U-8 수다방</title>
     <!-- Tailwind CSS -->
-    <script src="https://jsdelivr.net"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <!-- Google Fonts (Gaegu & Jua for playful crayon kid-friendly headers) -->
@@ -79,15 +79,15 @@
             <h1 class="title-font text-3xl text-emerald-900 mb-2">Do-Park 수다방</h1>
             <p class="text-gray-600 mb-6 font-bold">두팍친구들 U8 축구 꿈나무 공간!<br>입장 번호(비밀번호)를 입력해주세요.</p>
             
-            <div class="space-y-4">
+            <form onsubmit="handleUnlock(event)" class="space-y-4">
                 <div>
                     <input type="password" id="passcodeInput" placeholder="입장 번호 4자리" maxlength="6" 
                         class="w-full px-4 py-3 text-center text-2xl tracking-widest crayon-border-input focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-emerald-50/50" required>
                 </div>
-                <button type="button" onclick="handleUnlock()" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xl rounded-2xl crayon-border-1 transition-all">
+                <button type="submit" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xl rounded-2xl crayon-border-1 transition-all">
                     🚀 입장하기
                 </button>
-            </div>
+            </form>
             <p id="lockError" class="text-rose-500 text-sm mt-3 font-bold hidden">비밀번호가 틀렸어요! 다시 확인해 주세요.</p>
         </div>
     </div>
@@ -115,7 +115,7 @@
                 </div>
             </div>
 
-            <!-- Members Roster on Header -->
+            <!-- Members Roster on Header (Running Kids Concept) -->
             <div class="bg-white/10 backdrop-blur-sm p-4 rounded-2xl border-2 border-white/30">
                 <div class="flex items-center justify-center md:justify-start gap-2 mb-2 text-yellow-200 font-bold text-lg">
                     <span>🏃‍♂️</span> <span>두팍친구들 선수 명단</span>
@@ -131,51 +131,888 @@
             </div>
         </header>
 
-        <!-- Navigation Tabs -->
+        <!-- Navigation Tabs (Schedule Tab Removed) -->
         <div class="flex flex-wrap gap-3 mb-6 bg-white p-3 rounded-3xl crayon-border-1">
-            <button type="button" id="tabFree" onclick="switchTab('free')" class="flex-1 px-4 py-3 rounded-2xl font-bold text-lg sm:text-xl transition-all flex items-center justify-center gap-2 bg-emerald-500 text-white shadow-md">
+            <button type="button" id="tabFreeBoardBtn" onclick="switchTab('free')" class="flex-1 px-4 py-3 rounded-2xl font-bold text-lg sm:text-xl transition-all flex items-center justify-center gap-2 bg-emerald-500 text-white shadow-md">
                 💬 자유 게시판 (<span id="freePostCount">0</span>)
             </button>
-            <button type="button" id="tabPhoto" onclick="switchTab('photo')" class="flex-1 px-4 py-3 rounded-2xl font-bold text-lg sm:text-xl transition-all flex items-center justify-center gap-2 text-amber-900 hover:bg-amber-100">
+            <button type="button" id="tabPhotoGalleryBtn" onclick="switchTab('photo')" class="flex-1 px-4 py-3 rounded-2xl font-bold text-lg sm:text-xl transition-all flex items-center justify-center gap-2 text-amber-900 hover:bg-amber-100">
                 📸 사진방 (<span id="photoPostCount">0</span>)
             </button>
-            <button type="button" id="tabTraining" onclick="switchTab('training')" class="flex-1 px-4 py-3 rounded-2xl font-bold text-lg sm:text-xl transition-all flex items-center justify-center gap-2 text-amber-900 hover:bg-amber-100">
+            <button type="button" id="tabTrainingBtn" onclick="switchTab('training')" class="flex-1 px-4 py-3 rounded-2xl font-bold text-lg sm:text-xl transition-all flex items-center justify-center gap-2 text-amber-900 hover:bg-amber-100">
                 📝 훈련 일지 (<span id="trainingPostCount">0</span>)
             </button>
         </div>
 
-        <!-- Search Bar Component -->
-        <div class="bg-white p-4 sm:p-5 rounded-3xl crayon-border-1 flex flex-col sm:flex-row gap-3 items-center justify-between mb-6">
-            <div class="flex items-center gap-2 w-full">
-                <span class="text-2xl">🔍</span>
-                <input type="text" id="searchInput" oninput="filterPosts()" placeholder="현재 게시판에서 이야기 검색하기..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500">
+        <!-- TAB 1: Free Board -->
+        <section id="sectionFreeBoard" class="space-y-6">
+            <div class="bg-white p-4 sm:p-5 rounded-3xl crayon-border-1 flex flex-col sm:flex-row gap-3 items-center justify-between">
+                <div class="flex items-center gap-2 w-full sm:w-auto">
+                    <span class="text-2xl">🔍</span>
+                    <input type="text" id="freeSearchInput" oninput="filterFreePosts()" placeholder="이야기 검색하기..." class="w-full sm:w-64 px-4 py-2 crayon-border-input focus:outline-none focus:ring-2 focus:ring-emerald-500 text-base bg-emerald-50/30">
+                </div>
+                <div class="text-base font-bold text-emerald-800 text-center sm:text-right">
+                    ✨ 바른 말, 고은 말 쓰기! 친구들과 즐거운 축구 이야기를 나눠보세요!
+                </div>
             </div>
-        </div>
 
-        <!-- Dynamic Post List (All categories render here) -->
-        <div id="postsList" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- 파이어베이스 실시간 데이터가 들어옵니다 -->
+            <div id="freePostsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <!-- Posts dynamically rendered -->
+            </div>
+        </section>
+
+        <!-- TAB 2: Photo Gallery -->
+        <section id="sectionPhotoGallery" class="space-y-6 hidden">
+            <div class="bg-amber-50 p-5 rounded-3xl crayon-border-yellow flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div>
+                    <h2 class="title-font text-2xl text-amber-900">📸 두팍친구들 순간포착 사진방</h2>
+                    <p class="text-base text-amber-800 font-bold">경기 중 멋진 모습과 훈련 사진을 공유하는 폴라로이드 공간입니다!</p>
+                </div>
+                <button type="button" onclick="openNewPostModal()" class="px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-2xl shadow">사진 올리기</button>
+            </div>
+
+            <div id="photoGridContainer" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                <!-- Photos dynamically rendered -->
+            </div>
+        </section>
+
+        <!-- TAB 3: Training Log -->
+        <section id="sectionTrainingLog" class="space-y-6 hidden">
+            <div class="bg-amber-100 p-6 rounded-3xl crayon-border-yellow flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div>
+                    <h2 class="title-font text-2xl text-amber-900">📝 U8 축구 훈련 일지</h2>
+                    <p class="text-base text-amber-800 font-bold">기술, 전술, 패스, 체력 운동 내용을 기록해봐요!</p>
+                </div>
+                <button type="button" onclick="openNewTrainingPostModal()" class="px-5 py-3 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xl rounded-2xl crayon-border-yellow">
+                    ✏️ 훈련 일지 작성
+                </button>
+            </div>
+
+            <div id="trainingLogsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Training logs dynamically rendered -->
+            </div>
+        </section>
+
+    </div>
+
+    <!-- New Post / Training Modal -->
+    <div id="postModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 hidden">
+        <div class="bg-white p-6 sm:p-8 rounded-3xl crayon-border-1 max-w-lg w-full max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between mb-4 border-b pb-3">
+                <h3 id="modalTitle" class="title-font text-2xl text-emerald-900 flex items-center gap-2"><span>✏️</span> 새글 작성하기</h3>
+                <button type="button" onclick="closeNewPostModal()" class="text-gray-400 hover:text-gray-600 text-3xl font-bold">&times;</button>
+            </div>
+
+            <form id="postForm" onsubmit="handlePostSubmit(event)" class="space-y-4">
+                <!-- Board Selector -->
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">게시판 선택</label>
+                    <div class="grid grid-cols-3 gap-2">
+                        <label class="flex items-center justify-center gap-1 p-2.5 bg-emerald-50 rounded-2xl border-2 border-emerald-300 cursor-pointer text-sm font-bold text-emerald-900">
+                            <input type="radio" name="postType" value="free" checked onchange="toggleFormMode(this.value)"> 자유수다
+                        </label>
+                        <label class="flex items-center justify-center gap-1 p-2.5 bg-amber-50 rounded-2xl border-2 border-amber-300 cursor-pointer text-sm font-bold text-amber-900">
+                            <input type="radio" name="postType" value="photo" onchange="toggleFormMode(this.value)"> 사진방
+                        </label>
+                        <label class="flex items-center justify-center gap-1 p-2.5 bg-sky-50 rounded-2xl border-2 border-sky-300 cursor-pointer text-sm font-bold text-sky-900">
+                            <input type="radio" name="postType" value="training" onchange="toggleFormMode(this.value)"> 훈련일지
+                        </label>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">작성자 이름</label>
+                        <input type="text" id="postAuthor" placeholder="예: 노은준(닌자)" class="w-full px-3 py-2 text-base crayon-border-input focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-gray-50" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">스티커 아이콘</label>
+                        <select id="postSticker" class="w-full px-3 py-2 text-base crayon-border-input focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-gray-50 font-bold">
+                            <option value="⚽">⚽ 축구공</option>
+                            <option value="⚡">⚡ 번개</option>
+                            <option value="🔥">🔥 불꽃</option>
+                            <option value="⭐">⭐ 별</option>
+                            <option value="🦁">🦁 사자</option>
+                            <option value="🏆">🏆 트로피</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">제목</label>
+                    <input type="text" id="postTitle" placeholder="제목을 입력하세요..." class="w-full px-3 py-2 text-base crayon-border-input focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-gray-50" required>
+                </div>
+
+                <!-- Photo Upload Group (Hidden by default) -->
+                <div id="photoUploadGroup" class="hidden space-y-2">
+                    <label class="block text-sm font-bold text-amber-900">📷 사진 첨부</label>
+                    <input type="file" id="postImageFile" accept="image/*" onchange="previewImage(event)" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-amber-100 file:text-amber-800 hover:file:bg-amber-200">
+                    <div id="imagePreviewContainer" class="hidden mt-2">
+                        <img id="imagePreview" src="" alt="미리보기" class="w-full h-40 object-cover rounded-2xl border-2 border-amber-300">
+                    </div>
+                </div>
+
+                <!-- Training Specific Fields (Hidden by default) -->
+                <div id="trainingFieldsGroup" class="hidden space-y-3 bg-amber-50/70 p-4 rounded-2xl border-2 border-amber-200">
+                    <h4 class="text-sm font-bold text-amber-900">📋 훈련 일지 상세 항목</h4>
+                    <div>
+                        <label class="block text-xs text-amber-800 font-bold mb-1">🎯 오늘 훈련 목표</label>
+                        <input type="text" id="trainingGoal" placeholder="예: 패스 정확도 높이기, 드리블 돌파 등" class="w-full px-3 py-2 text-sm crayon-border-input bg-white">
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-xs text-emerald-800 font-bold mb-1">⚽ 기술 (Tech)</label>
+                            <input type="text" id="trainingTech" placeholder="볼링, 턴, 슈팅 등" class="w-full px-3 py-2 text-sm crayon-border-input bg-white">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-sky-800 font-bold mb-1">🧠 전술 (Tactics)</label>
+                            <input type="text" id="trainingTactics" placeholder="위치 선정, 패스 앤 무브" class="w-full px-3 py-2 text-sm crayon-border-input bg-white">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-indigo-800 font-bold mb-1">🦶 패스 & 트래핑</label>
+                            <input type="text" id="trainingPass" placeholder="롱패스, 원터치 등" class="w-full px-3 py-2 text-sm crayon-border-input bg-white">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-rose-800 font-bold mb-1">⚡ 체력 & 민첩성</label>
+                            <input type="text" id="trainingFitness" placeholder="콘 드리블, 콘 사이 뛰기" class="w-full px-3 py-2 text-sm crayon-border-input bg-white">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs text-amber-800 font-bold mb-1">🌟 오늘 훈련 만족도</label>
+                        <select id="trainingRating" class="w-full px-3 py-2 text-sm crayon-border-input bg-white font-bold">
+                            <option value="⭐⭐⭐⭐⭐ 최고였어요! (5/5)">⭐⭐⭐⭐⭐ 최고였어요! (5/5)</option>
+                            <option value="⭐⭐⭐⭐ 아주 좋았어요! (4/5)">⭐⭐⭐⭐ 아주 좋았어요! (4/5)</option>
+                            <option value="⭐⭐⭐ 보통이었어요 (3/5)">⭐⭐⭐ 보통이었어요 (3/5)</option>
+                            <option value="⭐⭐ 조금 아쉬웠어요 (2/5)">⭐⭐ 조금 아쉬웠어요 (2/5)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label id="contentLabel" class="block text-sm font-bold text-gray-700 mb-1">내용</label>
+                    <textarea id="postContent" rows="4" placeholder="즐거운 축구 이야기나 소감을 적어보세요..." class="w-full px-3 py-2 text-base crayon-border-input focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-gray-50" required></textarea>
+                </div>
+
+                <div class="pt-2">
+                    <button type="submit" class="w-full py-3.5 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xl rounded-2xl crayon-border-1 transition-all shadow-lg">
+                        ✨ 등록하기
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 
-    <!-- New Post Modal Backdrop -->
-    <div id="postModal" class="fixed inset-0 z-40 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 hidden">
-        <div class="bg-white p-6 rounded-3xl crayon-border-1 max-w-lg w-full relative">
-            <h2 class="title-font text-2xl text-emerald-900 mb-4 flex items-center gap-2">✏️ 새로운 수다 쓰기</h2>
-            
-            <div class="space-y-4">
-                <div>
-                    <label class="block font-bold text-gray-700 mb-1">카테고리 선택</label>
-                    <select id="modalCategory" class="w-full p-2 border-2 border-emerald-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                        <option value="free">💬 자유 게시판</option>
-                        <option value="photo">📸 사진방 (이미지 주소 첨부)</option>
-                        <option value="training">📝 훈련 일지</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block font-bold text-gray-700 mb-1">글쓴이 (선수 이름)</label>
-                    <input type="text" id="modalAuthor" placeholder="예: ⚡ 노은준(닌자)" class="w-full p-2 border-2 border-emerald-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                </div>
-                <div>
-                    <label class="block font-bold text-gray-700 mb-1">내용</label>
+    <!-- Photo Lightbox Modal -->
+    <div id="photoModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 hidden">
+        <div class="bg-white p-6 rounded-3xl max-w-2xl w-full relative crayon-border-yellow">
+            <button type="button" onclick="closePhotoModal()" class="absolute top-3 right-4 text-gray-500 hover:text-black text-3xl font-bold">&times;</button>
+            <div class="overflow-hidden rounded-2xl bg-black mb-4 max-h-[60vh] flex items-center justify-center">
+                <img id="lightboxImg" src="" alt="확대 사진" class="max-h-[60vh] object-contain">
+            </div>
+            <h3 id="lightboxTitle" class="title-font text-2xl text-amber-900 mb-1"></h3>
+            <p id="lightboxCaption" class="text-gray-700 text-base mb-3"></p>
+            <div class="flex items-center justify-between text-sm text-gray-500 border-t pt-2 font-bold">
+                <span id="lightboxAuthor"></span>
+                <span id="lightboxDate"></span>
+            </div>
+        </div>
+    </div>
 
+    <!-- Custom Warning / Message Modal -->
+    <div id="warningModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 hidden">
+        <div class="bg-white p-6 rounded-3xl crayon-border-1 max-w-sm w-full text-center space-y-4">
+            <div id="warningIcon" class="text-5xl">⚠️</div>
+            <h3 id="warningTitle" class="title-font text-2xl text-emerald-900">알림</h3>
+            <p id="warningText" class="text-gray-700 text-base font-bold leading-relaxed"></p>
+            <button type="button" onclick="closeWarningModal()" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-lg rounded-2xl crayon-border-1">확인</button>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, updateDoc, deleteDoc, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        let app, db, auth;
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'dopark-u8-suda-v2';
+        
+        const BAD_WORDS = ['욕설', '바보', '시발', '개새', '지랄', '병신', '꺼져', '닥쳐', '쓰레기'];
+        const TRAINING_KEYWORDS = ['훈련', '연습', '드리블', '패스', '슛', '슈팅', '경기', '축구', '전술', '체력', '골', '볼', '코치', '러닝', '스커미시'];
+
+        let posts = [];
+        let activeTab = 'free';
+        let currentPhotoData = '';
+
+        window.showWarningModal = function(title, text, icon = '⚠️') {
+            document.getElementById('warningTitle').innerText = title;
+            document.getElementById('warningText').innerHTML = text;
+            document.getElementById('warningIcon').innerText = icon;
+            document.getElementById('warningModal').classList.remove('hidden');
+        }
+
+        window.closeWarningModal = function() {
+            document.getElementById('warningModal').classList.add('hidden');
+        }
+
+        function containsBadWords(str) {
+            if (!str) return false;
+            return BAD_WORDS.some(word => str.toLowerCase().includes(word));
+        }
+
+        window.handleUnlock = function(e) {
+            e.preventDefault();
+            const val = document.getElementById('passcodeInput').value.trim();
+            if (val.length >= 4) {
+                sessionStorage.setItem('isUnlocked', 'true');
+                document.getElementById('lockScreen').classList.add('hidden');
+                document.getElementById('appContainer').classList.remove('hidden');
+                lucide.createIcons();
+            } else {
+                document.getElementById('lockError').classList.remove('hidden');
+            }
+        }
+
+        window.lockApp = function() {
+            sessionStorage.removeItem('isUnlocked');
+            document.getElementById('lockScreen').classList.remove('hidden');
+            document.getElementById('appContainer').classList.add('hidden');
+            document.getElementById('passcodeInput').value = '';
+        }
+
+        // Firebase Initialization & Auth
+        async function initFirebase() {
+            try {
+                if (typeof __firebase_config !== 'undefined' && __firebase_config) {
+                    const firebaseConfig = JSON.parse(__firebase_config);
+                    app = initializeApp(firebaseConfig);
+                    db = getFirestore(app);
+                    auth = getAuth(app);
+
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                        await signInWithCustomToken(auth, __initial_auth_token);
+                    } else {
+                        await signInAnonymously(auth);
+                    }
+
+                    onAuthStateChanged(auth, (user) => {
+                        if (user) {
+                            initFirestoreListener();
+                        } else {
+                            loadLocalFallback();
+                        }
+                    });
+                } else {
+                    loadLocalFallback();
+                }
+            } catch (err) {
+                console.warn("Firebase init warning, falling back to local storage:", err);
+                loadLocalFallback();
+            }
+        }
+
+        function loadLocalFallback() {
+            try {
+                const localData = localStorage.getItem(appId + '_posts');
+                if (localData) {
+                    posts = JSON.parse(localData);
+                } else {
+                    posts = [];
+                }
+            } catch (e) {
+                posts = [];
+            }
+            renderAll();
+        }
+
+        function saveLocalFallback() {
+            try {
+                localStorage.setItem(appId + '_posts', JSON.stringify(posts));
+            } catch (e) {
+                console.error("Local storage save error:", e);
+            }
+        }
+
+        function getPostsCollectionRef() {
+            if (!db) return null;
+            return collection(db, 'artifacts', appId, 'posts');
+        }
+
+        function initFirestoreListener() {
+            if (!db) {
+                loadLocalFallback();
+                return;
+            }
+            try {
+                const colRef = getPostsCollectionRef();
+                if (!colRef) {
+                    loadLocalFallback();
+                    return;
+                }
+                onSnapshot(colRef, (snapshot) => {
+                    posts = [];
+                    snapshot.forEach(docSnap => {
+                        posts.push({ id: docSnap.id, ...docSnap.data() });
+                    });
+                    posts.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+                    renderAll();
+                }, (error) => {
+                    console.warn("Firestore permission or network error, switching to local storage fallback:", error);
+                    loadLocalFallback();
+                });
+            } catch (e) {
+                console.warn("Firestore listener setup warning, using local storage:", e);
+                loadLocalFallback();
+            }
+        }
+
+        window.switchTab = function(tabName) {
+            activeTab = tabName;
+            
+            const freeBtn = document.getElementById('tabFreeBoardBtn');
+            const photoBtn = document.getElementById('tabPhotoGalleryBtn');
+            const trainingBtn = document.getElementById('tabTrainingBtn');
+
+            const freeSec = document.getElementById('sectionFreeBoard');
+            const photoSec = document.getElementById('sectionPhotoGallery');
+            const trainingSec = document.getElementById('sectionTrainingLog');
+
+            [freeBtn, photoBtn, trainingBtn].forEach(btn => {
+                btn.className = "flex-1 px-4 py-3 rounded-2xl font-bold text-lg sm:text-xl transition-all flex items-center justify-center gap-2 text-amber-900 hover:bg-amber-100";
+            });
+
+            [freeSec, photoSec, trainingSec].forEach(sec => sec.classList.add('hidden'));
+
+            if (tabName === 'free') {
+                freeBtn.className = "flex-1 px-4 py-3 rounded-2xl font-bold text-lg sm:text-xl transition-all flex items-center justify-center gap-2 bg-emerald-500 text-white shadow-md";
+                freeSec.classList.remove('hidden');
+            } else if (tabName === 'photo') {
+                photoBtn.className = "flex-1 px-4 py-3 rounded-2xl font-bold text-lg sm:text-xl transition-all flex items-center justify-center gap-2 bg-sky-500 text-white shadow-md";
+                photoSec.classList.remove('hidden');
+            } else if (tabName === 'training') {
+                trainingBtn.className = "flex-1 px-4 py-3 rounded-2xl font-bold text-lg sm:text-xl transition-all flex items-center justify-center gap-2 bg-amber-500 text-white shadow-md";
+                trainingSec.classList.remove('hidden');
+            }
+        }
+
+        function renderAll() {
+            renderFreePosts();
+            renderPhotoGallery();
+            renderTrainingLogs();
+        }
+
+        function renderFreePosts(filteredPosts = null) {
+            const container = document.getElementById('freePostsContainer');
+            const freePostsList = posts.filter(p => p.type === 'free');
+            const postsToRender = filteredPosts || freePostsList;
+            
+            document.getElementById('freePostCount').innerText = freePostsList.length;
+            document.getElementById('photoPostCount').innerText = posts.filter(p => p.type === 'photo').length;
+            document.getElementById('trainingPostCount').innerText = posts.filter(p => p.type === 'training').length;
+
+            if (postsToRender.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full bg-white p-8 rounded-3xl text-center text-gray-500 crayon-border-1">
+                        <span class="text-4xl block mb-2">💬</span>
+                        아직 등록된 이야기가 없어요. 첫 번째 이야기를 들려주세요!
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = postsToRender.map(post => `
+                <div class="bg-white p-5 sm:p-6 rounded-3xl crayon-border-1 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between gap-2 border-b border-gray-100 pb-3 mb-3">
+                            <div class="flex items-center gap-2">
+                                <span class="text-3xl">${post.sticker || '⚽'}</span>
+                                <div>
+                                    <h3 class="title-font text-2xl text-gray-800 leading-snug">${escapeHtml(post.title)}</h3>
+                                    <p class="text-xs text-gray-500 font-bold">✍️ 작성자: ${escapeHtml(post.author)} | 📅 ${post.date}</p>
+                                </div>
+                            </div>
+                            <button type="button" onclick="deletePost('${post.id}')" class="p-1.5 text-gray-400 hover:text-red-500 rounded-lg transition-colors" title="삭제">
+                                <i data-lucide="trash-2" class="w-5 h-5"></i>
+                            </button>
+                        </div>
+                        <p class="text-gray-700 text-lg leading-relaxed whitespace-pre-line mb-4">${escapeHtml(post.content)}</p>
+                    </div>
+
+                    <div class="pt-3 border-t border-slate-100">
+                        <div class="flex items-center justify-between mb-2">
+                            <button type="button" onclick="toggleLike('${post.id}')" class="flex items-center gap-1.5 px-3 py-1 bg-rose-50 hover:bg-rose-100 text-rose-600 text-sm font-bold rounded-xl transition-colors">
+                                <span>❤️</span> 좋아요 <span>${post.likes || 0}</span>
+                            </button>
+                            <span class="text-xs text-gray-500 font-bold">💬 댓글 ${(post.comments || []).length}개</span>
+                        </div>
+
+                        <div class="space-y-2 bg-slate-50 p-3 rounded-2xl border border-slate-200">
+                            ${(post.comments || []).map(c => `
+                                <div class="bg-white p-2 rounded-xl border border-slate-200 text-sm">
+                                    <strong class="text-emerald-800">${escapeHtml(c.author)}:</strong>
+                                    <span class="text-gray-700">${escapeHtml(c.text)}</span>
+                                </div>
+                            `).join('')}
+
+                            <div class="flex gap-2 pt-1">
+                                <input type="text" id="commentAuthor-${post.id}" placeholder="이름" class="w-24 px-3 py-1.5 text-xs rounded-xl border border-slate-300 bg-white">
+                                <input type="text" id="commentText-${post.id}" placeholder="예쁜 댓글을 남겨주세요..." class="flex-1 px-3 py-1.5 text-xs rounded-xl border border-slate-300 bg-white">
+                                <button type="button" onclick="addComment('${post.id}')" class="px-3 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold rounded-xl">등록</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            lucide.createIcons();
+        }
+
+        function renderPhotoGallery() {
+            const container = document.getElementById('photoGridContainer');
+            const photoPosts = posts.filter(p => p.type === 'photo');
+
+            document.getElementById('freePostCount').innerText = posts.filter(p => p.type === 'free').length;
+            document.getElementById('photoPostCount').innerText = photoPosts.length;
+            document.getElementById('trainingPostCount').innerText = posts.filter(p => p.type === 'training').length;
+
+            if (photoPosts.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full bg-white p-8 rounded-3xl text-center text-gray-500 crayon-border-yellow">
+                        <span class="text-4xl block mb-2">📸</span>
+                        아직 공유된 사진이 없어요! 멋진 순간을 찍어 올려보세요!
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = photoPosts.map(post => `
+                <div class="polaroid relative flex flex-col justify-between">
+                    <div class="washi-tape"></div>
+                    <div class="cursor-pointer" onclick="openPhotoModal('${escapeHtml(post.photoUrl)}', '${escapeHtml(post.title)}', '${escapeHtml(post.content)}', '${escapeHtml(post.author)}', '${post.date}')">
+                        <div class="overflow-hidden rounded-xl bg-gray-100 aspect-video mb-3">
+                            <img src="${escapeHtml(post.photoUrl)}" alt="${escapeHtml(post.title)}" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300" onerror="this.src='https://placehold.co/600x400/22c55e/ffffff?text=Do-Park+Soccer'">
+                        </div>
+                        <div class="flex items-center justify-between gap-1 mb-1">
+                            <h4 class="title-font text-xl text-gray-800 truncate">${escapeHtml(post.title)}</h4>
+                            <span class="text-xl">${post.sticker || '📸'}</span>
+                        </div>
+                        <p class="text-sm text-gray-600 line-clamp-2 mb-2">${escapeHtml(post.content)}</p>
+                    </div>
+
+                    <div class="pt-2 border-t border-gray-200">
+                        <div class="flex items-center justify-between text-xs text-gray-500 mb-2">
+                            <span class="font-bold text-sky-800">✍️ ${escapeHtml(post.author)}</span>
+                            <button type="button" onclick="deletePost('${post.id}')" class="text-gray-400 hover:text-red-500 p-1" title="삭제">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <button type="button" onclick="toggleLike('${post.id}')" class="flex items-center gap-1 text-xs px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold rounded-lg">
+                                <span>❤️</span> ${post.likes || 0}
+                            </button>
+                            <span class="text-xs text-gray-400">📅 ${post.date}</span>
+                        </div>
+
+                        <div class="mt-2 space-y-1 bg-sky-50/60 p-2 rounded-xl text-xs">
+                            ${(post.comments || []).map(c => `
+                                <div class="bg-white/90 p-1 rounded border border-sky-100">
+                                    <strong class="text-sky-900">${escapeHtml(c.author)}:</strong>
+                                    <span class="text-gray-700">${escapeHtml(c.text)}</span>
+                                </div>
+                            `).join('')}
+
+                            <div class="flex gap-1 pt-1">
+                                <input type="text" id="commentAuthor-${post.id}" placeholder="이름" class="w-16 px-2 py-1 text-xs rounded border border-sky-200 bg-white">
+                                <input type="text" id="commentText-${post.id}" placeholder="댓글..." class="flex-1 px-2 py-1 text-xs rounded border border-sky-200 bg-white">
+                                <button type="button" onclick="addComment('${post.id}')" class="px-2 py-1 bg-sky-500 text-white text-xs font-bold rounded">등록</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            lucide.createIcons();
+        }
+
+        function renderTrainingLogs() {
+            const container = document.getElementById('trainingLogsContainer');
+            const logs = posts.filter(p => p.type === 'training');
+
+            document.getElementById('freePostCount').innerText = posts.filter(p => p.type === 'free').length;
+            document.getElementById('photoPostCount').innerText = posts.filter(p => p.type === 'photo').length;
+            document.getElementById('trainingPostCount').innerText = logs.length;
+
+            if (logs.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full bg-white p-8 rounded-3xl text-center text-gray-500 crayon-border-yellow">
+                        <span class="text-4xl block mb-2">📝</span>
+                        아직 작성된 훈련 일지가 없어요! 첫 축구 훈련 이야기를 작성해 보세요!
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = logs.map(log => `
+                <div class="bg-[#fffdf0] p-5 sm:p-6 rounded-3xl paper-card crayon-border-yellow flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between gap-2 border-b border-amber-200 pb-2 mb-3">
+                            <div class="flex items-center gap-2">
+                                <span class="text-2xl">${log.sticker || '⚽'}</span>
+                                <div>
+                                    <h4 class="title-font text-2xl text-amber-900 leading-snug">${escapeHtml(log.title)}</h4>
+                                    <p class="text-xs text-amber-700 font-bold">✍️ 작성자: ${escapeHtml(log.author)} | 📅 ${log.date}</p>
+                                </div>
+                            </div>
+                            <button type="button" onclick="deletePost('${log.id}')" class="p-1 text-gray-400 hover:text-red-500 rounded-lg" title="일지 삭제">
+                                <i data-lucide="trash-2" class="w-5 h-5"></i>
+                            </button>
+                        </div>
+
+                        ${log.rating ? `
+                            <div class="mb-3 px-3 py-1 bg-amber-100 rounded-xl text-xs sm:text-sm font-bold text-amber-900 border border-amber-300 inline-block">
+                                🌟 만족도: ${escapeHtml(log.rating)}
+                            </div>
+                        ` : ''}
+
+                        <div class="space-y-1.5 mb-3 text-xs sm:text-sm">
+                            ${log.goal ? `
+                                <div class="bg-amber-100/70 p-2 rounded-xl border border-amber-200 text-amber-900">
+                                    <strong class="text-amber-900">🎯 훈련 목표:</strong> ${escapeHtml(log.goal)}
+                                </div>
+                            ` : ''}
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                                ${log.tech ? `<div class="bg-white/80 p-2 rounded-xl border border-amber-200 text-gray-800"><strong class="text-emerald-700">⚽ 기술:</strong> ${escapeHtml(log.tech)}</div>` : ''}
+                                ${log.tactics ? `<div class="bg-white/80 p-2 rounded-xl border border-amber-200 text-gray-800"><strong class="text-sky-700">🧠 전술:</strong> ${escapeHtml(log.tactics)}</div>` : ''}
+                                ${log.pass ? `<div class="bg-white/80 p-2 rounded-xl border border-amber-200 text-gray-800"><strong class="text-indigo-700">🦶 패스:</strong> ${escapeHtml(log.pass)}</div>` : ''}
+                                ${log.fitness ? `<div class="bg-white/80 p-2 rounded-xl border border-amber-200 text-gray-800"><strong class="text-rose-700">⚡ 체력:</strong> ${escapeHtml(log.fitness)}</div>` : ''}
+                            </div>
+                        </div>
+
+                        <p class="text-gray-800 text-base leading-relaxed my-2 whitespace-pre-line bg-white/70 p-3 rounded-2xl border border-amber-200">
+                            <strong class="block text-xs text-amber-800 mb-1">💬 훈련 총평 / 소감:</strong>
+                            ${escapeHtml(log.content)}
+                        </p>
+                    </div>
+
+                    <div class="mt-3 pt-3 border-t border-amber-200">
+                        <div class="flex items-center justify-between mb-2">
+                            <button type="button" onclick="toggleLike('${log.id}')" class="flex items-center gap-1.5 px-3 py-1 bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-bold rounded-xl transition-colors">
+                                <span>❤️</span> 좋아요 <span>${log.likes || 0}</span>
+                            </button>
+                            <span class="text-xs text-gray-500 font-bold">💬 댓글 ${(log.comments || []).length}개</span>
+                        </div>
+
+                        <div class="space-y-1.5 bg-white/80 p-2 rounded-xl border border-amber-200 text-xs">
+                            ${(log.comments || []).map(c => `
+                                <div class="bg-amber-50/50 p-1.5 rounded-lg border border-amber-100">
+                                    <strong class="text-amber-900">${escapeHtml(c.author)}:</strong>
+                                    <span class="text-gray-700">${escapeHtml(c.text)}</span>
+                                </div>
+                            `).join('')}
+
+                            <div class="flex gap-1 pt-1">
+                                <input type="text" id="commentAuthor-${log.id}" placeholder="이름" class="w-20 px-2 py-1 text-xs rounded border border-amber-300 bg-white">
+                                <input type="text" id="commentText-${log.id}" placeholder="댓글 달기..." class="flex-1 px-2 py-1 text-xs rounded border border-amber-300 bg-white">
+                                <button type="button" onclick="addComment('${log.id}')" class="px-2.5 py-1 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold rounded">등록</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            lucide.createIcons();
+        }
+
+        window.filterFreePosts = function() {
+            const query = document.getElementById('freeSearchInput').value.toLowerCase().trim();
+            const freePosts = posts.filter(p => p.type === 'free');
+            if (!query) {
+                renderFreePosts(freePosts);
+                return;
+            }
+            const filtered = freePosts.filter(p => 
+                p.title.toLowerCase().includes(query) || 
+                p.content.toLowerCase().includes(query) ||
+                p.author.toLowerCase().includes(query)
+            );
+            renderFreePosts(filtered);
+        }
+
+        window.toggleLike = async function(id) {
+            const post = posts.find(p => p.id === id);
+            if (post) {
+                post.likes = (post.likes || 0) + 1;
+                if (db) {
+                    try {
+                        const docRef = doc(db, 'artifacts', appId, 'posts', id);
+                        await updateDoc(docRef, { likes: post.likes });
+                    } catch (e) {
+                        console.warn("Firestore sync warning, saved locally");
+                    }
+                }
+                saveLocalFallback();
+                renderAll();
+            }
+        }
+
+        window.addComment = async function(postId) {
+            const authorInput = document.getElementById(`commentAuthor-${postId}`);
+            const textInput = document.getElementById(`commentText-${postId}`);
+            
+            if (!authorInput || !textInput) return;
+
+            const author = authorInput.value.trim();
+            const text = textInput.value.trim();
+
+            if (!author || !text) {
+                showWarningModal('입력 오류', '이름과 댓글 내용을 모두 입력해주세요!', '✍️');
+                return;
+            }
+
+            if (containsBadWords(author) || containsBadWords(text)) {
+                showWarningModal('사용 제한', '바른 말을 사용해 주세요! 부적절한 단어가 포함되어 있습니다.', '🚫');
+                return;
+            }
+
+            const post = posts.find(p => p.id === postId);
+            if (post) {
+                post.comments = [...(post.comments || []), { author, text }];
+                if (db) {
+                    try {
+                        const docRef = doc(db, 'artifacts', appId, 'posts', postId);
+                        await updateDoc(docRef, { comments: post.comments });
+                    } catch (e) {
+                        console.warn("Firestore comment sync warning, saved locally");
+                    }
+                }
+                saveLocalFallback();
+                authorInput.value = '';
+                textInput.value = '';
+                renderAll();
+            }
+        }
+
+        window.deletePost = async function(id) {
+            posts = posts.filter(p => p.id !== id);
+            if (db) {
+                try {
+                    const docRef = doc(db, 'artifacts', appId, 'posts', id);
+                    await deleteDoc(docRef);
+                } catch (e) {
+                    console.warn("Firestore delete warning");
+                }
+            }
+            saveLocalFallback();
+            renderAll();
+        }
+
+        window.openNewPostModal = function() {
+            document.getElementById('postModal').classList.remove('hidden');
+            const mode = activeTab === 'photo' ? 'photo' : (activeTab === 'training' ? 'training' : 'free');
+            toggleFormMode(mode);
+            document.querySelectorAll('input[name="postType"]').forEach(r => {
+                r.checked = (r.value === mode);
+            });
+        }
+
+        window.openNewTrainingPostModal = function() {
+            document.getElementById('postModal').classList.remove('hidden');
+            toggleFormMode('training');
+            document.querySelectorAll('input[name="postType"]').forEach(r => {
+                r.checked = (r.value === 'training');
+            });
+        }
+
+        window.closeNewPostModal = function() {
+            document.getElementById('postModal').classList.add('hidden');
+            document.getElementById('postForm').reset();
+            document.getElementById('imagePreviewContainer').classList.add('hidden');
+            currentPhotoData = '';
+        }
+
+        window.toggleFormMode = function(mode) {
+            const photoGroup = document.getElementById('photoUploadGroup');
+            const fieldsGroup = document.getElementById('trainingFieldsGroup');
+            const modalTitle = document.getElementById('modalTitle');
+            const contentLabel = document.getElementById('contentLabel');
+
+            if (mode === 'photo') {
+                photoGroup.classList.remove('hidden');
+                fieldsGroup.classList.add('hidden');
+                modalTitle.innerHTML = '<span>📸</span> 사진방 사진 올리기';
+                contentLabel.innerText = '사진 설명 / 소감';
+            } else if (mode === 'training') {
+                photoGroup.classList.add('hidden');
+                fieldsGroup.classList.remove('hidden');
+                modalTitle.innerHTML = '<span>📝</span> 훈련 일지 작성하기';
+                contentLabel.innerText = '오늘 훈련 총평 / 느낀 점 (소감)';
+            } else {
+                photoGroup.classList.add('hidden');
+                fieldsGroup.classList.add('hidden');
+                modalTitle.innerHTML = '<span>✏️</span> 자유 게시판 글쓰기';
+                contentLabel.innerText = '내용';
+            }
+        }
+
+        window.previewImage = function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    currentPhotoData = e.target.result;
+                    const img = document.getElementById('imagePreview');
+                    img.src = currentPhotoData;
+                    document.getElementById('imagePreviewContainer').classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        window.handlePostSubmit = async function(e) {
+            e.preventDefault();
+
+            const postTypeInput = document.querySelector('input[name="postType"]:checked');
+            const postType = postTypeInput ? postTypeInput.value : activeTab;
+            const author = document.getElementById('postAuthor').value.trim();
+            const title = document.getElementById('postTitle').value.trim();
+            const sticker = document.getElementById('postSticker').value;
+            const content = document.getElementById('postContent').value.trim();
+            const ratingElement = document.getElementById('trainingRating');
+            const rating = ratingElement ? ratingElement.value : '';
+
+            if (!author || !title || !content) {
+                showWarningModal('입력 확인', '작성자, 제목, 내용을 모두 입력해주세요!', '✍️');
+                return;
+            }
+
+            if (containsBadWords(author) || containsBadWords(title) || containsBadWords(content)) {
+                showWarningModal('사용 제한', '바른 말을 사용해 주세요! 부적절한 단어가 포함되어 있습니다.', '🚫');
+                return;
+            }
+
+            let goal = '', tech = '', tactics = '', pass = '', fitness = '';
+            if (postType === 'training') {
+                const goalEl = document.getElementById('trainingGoal');
+                const techEl = document.getElementById('trainingTech');
+                const tacticsEl = document.getElementById('trainingTactics');
+                const passEl = document.getElementById('trainingPass');
+                const fitnessEl = document.getElementById('trainingFitness');
+
+                goal = goalEl ? goalEl.value.trim() : '';
+                tech = techEl ? techEl.value.trim() : '';
+                tactics = tacticsEl ? tacticsEl.value.trim() : '';
+                pass = passEl ? passEl.value.trim() : '';
+                fitness = fitnessEl ? fitnessEl.value.trim() : '';
+
+                const combinedTrainingText = `${title} ${content} ${goal} ${tech} ${tactics} ${pass} ${fitness}`.toLowerCase();
+                const filledFieldsCount = [goal, tech, tactics, pass, fitness].filter(val => val.length > 0).length;
+                const hasTrainingKeyword = TRAINING_KEYWORDS.some(word => combinedTrainingText.includes(word));
+
+                if (filledFieldsCount < 1) {
+                    showWarningModal(
+                        '훈련 일지 항목을 입력해주세요! ⚽',
+                        '훈련 일지에는 <strong>훈련 목표, 기술, 전술, 패스, 체력</strong> 중 최소 1개 이상 항목을 작성해야 합니다.<br><br>일상 수다나 잡담은 <strong>[자유수다]</strong> 게시판을 이용해 주세요! 😊',
+                        '⚽'
+                    );
+                    return;
+                }
+
+                if (!hasTrainingKeyword) {
+                    showWarningModal(
+                        '훈련 관련 내용만 작성 가능해요! ⚽',
+                        '훈련 일지 게시판에는 <strong>축구 훈련 및 경기</strong>와 관련된 내용만 작성할 수 있어요. 축구 관련 단어를 포함해 주세요! ⚽✨',
+                        '🚫'
+                    );
+                    return;
+                }
+            }
+
+            let finalPhotoUrl = currentPhotoData;
+            if (postType === 'photo' && !finalPhotoUrl) {
+                finalPhotoUrl = 'https://images.unsplash.com/photo-1517927033932-b3d18e61fb3a?auto=format&fit=crop&w=800&q=80';
+            }
+
+            const now = new Date();
+            const dateStr = `${now.getFullYear()}.${String(now.getMonth()+1).padStart(2,'0')}.${String(now.getDate()).padStart(2,'0')}`;
+            const postId = 'post_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
+
+            const newPost = {
+                type: postType,
+                title,
+                author,
+                sticker,
+                content,
+                rating: postType === 'training' ? rating : null,
+                goal,
+                tech,
+                tactics,
+                pass,
+                fitness,
+                photoUrl: finalPhotoUrl,
+                date: dateStr,
+                createdAt: Date.now(),
+                likes: 0,
+                comments: []
+            };
+
+            posts.unshift(newPost);
+            saveLocalFallback();
+
+            if (db) {
+                try {
+                    const docRef = doc(db, 'artifacts', appId, 'posts', postId);
+                    await setDoc(docRef, newPost);
+                } catch (e) {
+                    console.warn("Firestore save warning, saved locally");
+                }
+            }
+
+            closeNewPostModal();
+
+            if (postType === 'photo') {
+                switchTab('photo');
+            } else if (postType === 'training') {
+                switchTab('training');
+            } else {
+                switchTab('free');
+            }
+            renderAll();
+        }
+
+        window.openPhotoModal = function(url, title, caption, author, date) {
+            document.getElementById('lightboxImg').src = url;
+            document.getElementById('lightboxTitle').innerText = title;
+            document.getElementById('lightboxCaption').innerText = caption;
+            document.getElementById('lightboxAuthor').innerText = `📷 작성자: ${author}`;
+            document.getElementById('lightboxDate').innerText = `📅 ${date}`;
+            document.getElementById('photoModal').classList.remove('hidden');
+        }
+
+        window.closePhotoModal = function() {
+            document.getElementById('photoModal').classList.add('hidden');
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            if (sessionStorage.getItem('isUnlocked') === 'true') {
+                document.getElementById('lockScreen').classList.add('hidden');
+                document.getElementById('appContainer').classList.remove('hidden');
+            } else {
+                document.getElementById('lockScreen').classList.add('hidden'); // or keep locked
+                document.getElementById('lockScreen').classList.remove('hidden');
+            }
+            initFirebase();
+            lucide.createIcons();
+        });
+    </script>
+</body>
+</html>
